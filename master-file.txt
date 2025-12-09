@@ -1,0 +1,43 @@
+PROJECT: MMA Matchmaker
+DESCRIPTION: A web application allowing users to view UFC fighter data and simulate matchmaking scenarios. The app uses a "Scrape & Store" architecture to maintain a local database of fighter statistics.
+
+--- TECHNOLOGY STACK ---
+
+1. BACKEND LANGUAGE: Golang (Go 1.21+)
+   - Role: Core business logic, HTTP server, data scraping, and HTML template rendering.
+   - Key Feature: Compiles to a single static binary for lightweight containerization.
+
+2. ROUTER: Chi
+   - Role: Lightweight, idiomatic HTTP router for handling endpoints.
+   - Reason: No external dependencies, strictly follows standard `net/http` compatibility.
+
+3. DATABASE: PostgreSQL (v15+)
+   - Role: Primary persistent storage for fighter rosters, stats, and historical match data.
+   - Driver: pgx/v5 (high-performance Go driver with connection pooling).
+   - Key Usage: Complex querying for matchmaking logic (e.g., filtering by weight class, reach, stance) and fuzzy search for names.
+
+4. FRONTEND: HTMX + Alpine.js
+   - Role: 
+     - HTMX: Handles server interactions (swapping HTML partials) without full page reloads.
+     - Alpine.js: Handles lightweight client-side interactivity (modals, dropdowns) directly in the markup.
+   - Strategy: Server-Side Rendering (SSR) of HTML templates using Go's `html/template`.
+
+5. INFRASTRUCTURE: Docker & Docker Compose
+   - Container A (App): The Go binary (Multi-stage build: Build on Alpine/Golang -> Run on Alpine).
+   - Container B (Database): Official Postgres Alpine image.
+   - Orchestration: Docker Compose handles networking and volume persistence between the App and DB.
+
+--- DATA STRATEGY ---
+
+- Source: No official API. Data is scraped from public sources (e.g., ufcstats.com).
+- Method: Go-based scraper (using Colly) runs periodically to fetch/update fighter stats.
+- Storage: Scraped data is normalized and inserted into PostgreSQL.
+
+--- ENVIRONMENT VARIABLES ---
+
+- DATABASE_URL: postgres://user:password@db:5432/ufc_matchmaker?sslmode=disable
+- PORT: 8080
+
+
+--- PROJECT'S FUNCTIONALITY DESCRIPTION --- 
+User will be able to choose 2 fighters from the database and matchmake them between each other. It will mimic the Tale of The Fight graphics, with fighter's picture, physical stats and record. They may save the match and even create several matches as a sort of card builder. They also can change card's name, number, location, etc. There should be an option for export as a .pptx where each slide is a fight or .pdf 
