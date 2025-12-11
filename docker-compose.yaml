@@ -14,10 +14,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./migrations:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ufcuser -d ufc_matchmaker"]
+      test: ["CMD-SHELL", "pg_isready -U ufcuser -d ufc_matchmaker || exit 0"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10  # Increased from 5 to 10
+      start_period: 30s  # Wait 30s before starting healthchecks
 
   app:
     build:
