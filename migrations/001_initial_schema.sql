@@ -51,6 +51,7 @@ CREATE TABLE matches(
     weight_class VARCHAR(50),
     is_title_fight BOOLEAN DEFAULT false,
     rounds INTEGER DEFAULT 3,
+    prediction INTEGER REFERENCES fighters(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT different_fighters CHECK (fighter1_id != fighter2_id)
@@ -68,4 +69,29 @@ CREATE TABLE scraper_metadata (
     error_message TEXT,
     CONSTRAINT unique_source_url UNIQUE(source_url)
 );
+
+-- Create fight_history table to track individual fights
+CREATE TABLE fight_history (
+    id SERIAL PRIMARY KEY,
+    fighter_id INTEGER NOT NULL REFERENCES fighters(id) ON DELETE CASCADE,
+    
+    -- Fight details
+    opponent_name VARCHAR(255) NOT NULL,
+    result VARCHAR(10) NOT NULL, -- 'win', 'loss', 'draw', 'nc' (no contest)
+    method VARCHAR(100), -- e.g., 'KO/TKO', 'Submission', 'Decision'
+    round INTEGER,
+    fight_date DATE,
+    event_name VARCHAR(255),
+    
+    
+    -- Ordering
+    fight_order INTEGER, -- Used to maintain chronological order
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT valid_result CHECK (result IN ('win', 'loss', 'draw', 'nc'))
+);
+
+CREATE INDEX idx_fight_history_fighter ON fight_history(fighter_id);
+CREATE INDEX idx_fight_history_date ON fight_history(fight_date DESC);
 
