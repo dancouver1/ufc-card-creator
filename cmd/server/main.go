@@ -14,7 +14,7 @@ func main() {
     }
 
     http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-        fmt.Fprintf(w, "UFC Matchmaker API - Server is running!")
+        fmt.Fprintf(w, "UFC Matchmaker API - Server is runßning!")
     })
 
     log.Printf("Server starting on port %s...", port)
