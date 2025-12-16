@@ -120,9 +120,28 @@
         </div>
 
         <!-- Detailed Stats Comparison -->
-        <div class="stats-comparison">
-            <div class="stat-row">
-                <div class="stat-value" x-text="fighter1?.height_feet + \"'\" + fighter1?.height_inches + '\"'"></div>
+    <div class="stats-comparison">
+        <div class="stat-row">
+        <div class="stat-value" x-text="fighter1?.height_feet + `'` + (fighter1?.height_inches || 0) + `\"`"></div>
+        <div class="stat-label">HEIGHT</div>
+        <div class="stat-value" x-text="fighter2?.height_feet + `'` + (fighter2?.height_inches || 0) + `\"`"></div>
+    </div>
+    <div class="stat-row">
+        <div class="stat-value" x-text="(fighter1?.weight_lbs || 'N/A') + ' lbs'"></div>
+        <div class="stat-label">WEIGHT</div>
+        <div class="stat-value" x-text="(fighter2?.weight_lbs || 'N/A') + ' lbs'"></div>
+    </div>
+    <div class="stat-row">
+        <div class="stat-value" x-text="fighter1?.reach_cm ? ((fighter1.reach_cm / 2.54).toFixed(1) + `\"`) : 'N/A'"></div>
+        <div class="stat-label">REACH</div>
+        <div class="stat-value" x-text="fighter2?.reach_cm ? ((fighter2.reach_cm / 2.54).toFixed(1) + `\"`) : 'N/A'"></div>
+    </div>
+    <div class="stat-row">
+        <div class="stat-value" x-text="fighter1?.stance || 'N/A'"></div>
+        <div class="stat-label">STANCE</div>
+        <div class="stat-value" x-text="fighter2?.stance || 'N/A'"></div>
+        </div>
+    </div>
                 <div class="stat-label">HEIGHT</div>
                 <div class="stat-value" x-text="fighter2?.height_feet + \"'\" + fighter2?.height_inches + '\"'"></div>
             </div>
