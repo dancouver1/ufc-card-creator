@@ -1,3 +1,4 @@
+package database
 // CreateMatch inserts a new match into the database
 func (db *DB) CreateMatch(ctx context.Context, match *models.Match) error {
 	query := `

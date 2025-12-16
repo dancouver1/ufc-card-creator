@@ -1,0 +1,70 @@
+{{template "base.html" .}}
+
+{{define "title"}}Fighters - UFC Matchmaker{{end}}
+
+{{define "content"}}
+<div class="container" x-data="{ searchTerm: '', weightClass: 'all' }">
+    <div class="page-header">
+        <h1>UFC Fighters Roster</h1>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="filters">
+        <input 
+            type="text" 
+            placeholder="Search fighters..." 
+            class="search-input"
+            x-model="searchTerm"
+            hx-get="/api/fighters/search"
+            hx-trigger="keyup changed delay:300ms"
+            hx-target="#fighters-grid"
+            hx-include="[x-model='weightClass']"
+        >
+        
+        <select 
+            class="filter-select"
+            x-model="weightClass"
+            hx-get="/api/fighters/filter"
+            hx-trigger="change"
+            hx-target="#fighters-grid"
+            hx-include="[x-model='searchTerm']"
+        >
+            <option value="all">All Weight Classes</option>
+            <option value="Flyweight">Flyweight</option>
+            <option value="Bantamweight">Bantamweight</option>
+            <option value="Featherweight">Featherweight</option>
+            <option value="Lightweight">Lightweight</option>
+            <option value="Welterweight">Welterweight</option>
+            <option value="Middleweight">Middleweight</option>
+            <option value="Light Heavyweight">Light Heavyweight</option>
+            <option value="Heavyweight">Heavyweight</option>
+        </select>
+    </div>
+
+    <!-- Fighters Grid -->
+    <div id="fighters-grid" class="fighters-grid">
+        {{range .Fighters}}
+        <div class="fighter-card">
+            <div class="fighter-image">
+                {{if .FighterImageURL}}
+                <img src="{{.FighterImageURL}}" alt="{{.Name}}">
+                {{else}}
+                <div class="fighter-placeholder">{{substr .Name 0 1}}</div>
+                {{end}}
+            </div>
+            <div class="fighter-info">
+                <h3>{{.Name}}</h3>
+                {{if .Nickname}}
+                <p class="nickname">"{{.Nickname}}"</p>
+                {{end}}
+                <p class="record">{{.GetRecord}}</p>
+                <p class="weight-class">{{.WeightClass}}</p>
+            </div>
+            <a href="/fighter/{{.ID}}" class="btn btn-sm">View Profile</a>
+        </div>
+        {{else}}
+        <p class="no-results">No fighters found</p>
+        {{end}}
+    </div>
+</div>
+{{end}}

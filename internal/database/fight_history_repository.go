@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/dancouver1/ufc-matchmaker/internal/models"
+	"github.com/dancouver1/ufc-card-creator/internal/models"
 )
 
 // GetLast5Fights retrieves the last 5 fights for a fighter
 func (db *DB) GetLast5Fights(ctx context.Context, fighterID int) ([]models.FightHistory, error) {
 	query := `
-        SELECT id, fighter_id, opponent_name, result, method, round,
+        SELECT id, fighter_id, opponent_name, result, method, round,ß
                fight_date, event_name, fight_order, created_at
         FROM fight_history
         WHERE fighter_id = $1

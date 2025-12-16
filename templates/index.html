@@ -1,0 +1,37 @@
+{{template "base.html" .}}
+
+{{define "title"}}UFC Matchmaker - Home{{end}}
+
+{{define "content"}}
+<div class="hero">
+    <div class="container">
+        <h1>UFC MATCHMAKER</h1>
+        <p class="subtitle">Create your dream UFC fight cards</p>
+        <div class="hero-buttons">
+            <a href="/matchmaker" class="btn btn-primary">Create a Match</a>
+            <a href="/fighters" class="btn btn-secondary">Browse Fighters</a>
+        </div>
+    </div>
+</div>
+
+<div class="container features">
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3>🥊 Match Fighters</h3>
+            <p>Create dream matchups between any UFC fighters</p>
+        </div>
+        <div class="feature-card">
+            <h3>📊 View Stats</h3>
+            <p>See detailed Tale of the Tape comparisons</p>
+        </div>
+        <div class="feature-card">
+            <h3>🎯 Make Predictions</h3>
+            <p>Pick your winners and build full fight cards</p>
+        </div>
+        <div class="feature-card">
+            <h3>📄 Export Cards</h3>
+            <p>Export your fight cards as PDF or PowerPoint</p>
+        </div>
+    </div>
+</div>
+{{end}}

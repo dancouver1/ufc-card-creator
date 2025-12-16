@@ -1,0 +1,263 @@
+{{template "base.html" .}}
+
+{{define "title"}}Create Match - UFC Matchmaker{{end}}
+
+{{define "content"}}
+<div class="container" x-data="matchmaker()">
+    <div class="page-header">
+        <h1>Create a Match</h1>
+    </div>
+
+    <!-- Fighter Selection -->
+    <div class="fighter-selection">
+        <div class="select-fighter">
+            <h3>Select Fighter 1</h3>
+            <button @click="openFighterModal(1)" class="btn btn-primary">
+                <span x-show="!fighter1">Choose Fighter</span>
+                <span x-show="fighter1" x-text="fighter1?.name"></span>
+            </button>
+        </div>
+
+        <div class="vs-divider">
+            <span>VS</span>
+        </div>
+
+        <div class="select-fighter">
+            <h3>Select Fighter 2</h3>
+            <button @click="openFighterModal(2)" class="btn btn-primary">
+                <span x-show="!fighter2">Choose Fighter</span>
+                <span x-show="fighter2" x-text="fighter2?.name"></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Tale of the Tape (Only shows when both fighters selected) -->
+    <div x-show="fighter1 && fighter2" class="tale-of-tape">
+        <!-- Event Header -->
+        <div class="event-header">
+            <h2 class="event-name" x-text="eventName || 'UFC XXX'"></h2>
+        </div>
+
+        <!-- Main Matchup -->
+        <div class="matchup-container">
+            <!-- Fighter 1 -->
+            <div class="fighter-side">
+                <div class="fighter-image-large">
+                    <img :src="fighter1?.fighter_image_url || '/static/images/placeholder.png'" 
+                         :alt="fighter1?.name">
+                </div>
+                
+                <div class="fighter-flag">
+                    <span x-text="getFlagEmoji(fighter1?.nationality)"></span>
+                    <span class="record" x-text="fighter1?.wins + '-' + fighter1?.losses + '-' + fighter1?.draws"></span>
+                </div>
+
+                <div class="fighter-name-plate">
+                    <h2 x-text="fighter1?.name"></h2>
+                </div>
+            </div>
+
+            <!-- Center Stats -->
+            <div class="center-stats">
+                <h3 class="last-5-title">LAST 5</h3>
+                
+                <div class="last-5-container">
+                    <!-- Fighter 1 Last 5 -->
+                    <div class="last-5-left">
+                        <template x-for="fight in fighter1?.last_5_fights || []" :key="fight.id">
+                            <div class="fight-result" 
+                                 :class="fight.result"
+                                 x-text="fight.opponent_name">
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Fighter 2 Last 5 -->
+                    <div class="last-5-right">
+                        <template x-for="fight in fighter2?.last_5_fights || []" :key="fight.id">
+                            <div class="fight-result" 
+                                 :class="fight.result"
+                                 x-text="fight.opponent_name">
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <h3 class="prediction-title">Prediction</h3>
+                <div class="prediction-selector">
+                    <button 
+                        @click="prediction = fighter1.id"
+                        :class="{'selected': prediction === fighter1?.id}"
+                        class="prediction-btn"
+                        x-text="fighter1?.name">
+                    </button>
+                    <span class="or-text">or</span>
+                    <button 
+                        @click="prediction = fighter2.id"
+                        :class="{'selected': prediction === fighter2?.id}"
+                        class="prediction-btn"
+                        x-text="fighter2?.name">
+                    </button>
+                </div>
+            </div>
+
+            <!-- Fighter 2 -->
+            <div class="fighter-side">
+                <div class="fighter-image-large">
+                    <img :src="fighter2?.fighter_image_url || '/static/images/placeholder.png'" 
+                         :alt="fighter2?.name">
+                </div>
+                
+                <div class="fighter-flag">
+                    <span x-text="getFlagEmoji(fighter2?.nationality)"></span>
+                    <span class="record" x-text="fighter2?.wins + '-' + fighter2?.losses + '-' + fighter2?.draws"></span>
+                </div>
+
+                <div class="fighter-name-plate">
+                    <h2 x-text="fighter2?.name"></h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Stats Comparison -->
+        <div class="stats-comparison">
+            <div class="stat-row">
+                <div class="stat-value" x-text="fighter1?.height_feet + \"'\" + fighter1?.height_inches + '\"'"></div>
+                <div class="stat-label">HEIGHT</div>
+                <div class="stat-value" x-text="fighter2?.height_feet + \"'\" + fighter2?.height_inches + '\"'"></div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-value" x-text="fighter1?.weight_lbs + ' lbs'"></div>
+                <div class="stat-label">WEIGHT</div>
+                <div class="stat-value" x-text="fighter2?.weight_lbs + ' lbs'"></div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-value" x-text="(fighter1?.reach_cm / 2.54).toFixed(1) + '\"'"></div>
+                <div class="stat-label">REACH</div>
+                <div class="stat-value" x-text="(fighter2?.reach_cm / 2.54).toFixed(1) + '\"'"></div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-value" x-text="fighter1?.stance || 'N/A'"></div>
+                <div class="stat-label">STANCE</div>
+                <div class="stat-value" x-text="fighter2?.stance || 'N/A'"></div>
+            </div>
+        </div>
+
+        <!-- Save Match Button -->
+        <div class="save-section">
+            <button @click="saveMatch()" class="btn btn-success btn-lg">
+                Save Match to Card
+            </button>
+        </div>
+    </div>
+
+    <!-- Fighter Selection Modal -->
+    <div x-show="showModal" 
+         x-cloak 
+         @click.self="showModal = false"
+         class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Select Fighter</h2>
+                <button @click="showModal = false" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input 
+                    type="text" 
+                    x-model="modalSearch"
+                    placeholder="Search fighters..."
+                    class="search-input"
+                    @input="searchFighters()"
+                >
+                <div class="modal-fighters-list">
+                    <template x-for="fighter in modalFighters" :key="fighter.id">
+                        <div @click="selectFighter(fighter)" class="modal-fighter-item">
+                            <span x-text="fighter.name"></span>
+                            <span class="fighter-record" x-text="fighter.wins + '-' + fighter.losses"></span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function matchmaker() {
+    return {
+        fighter1: null,
+        fighter2: null,
+        prediction: null,
+        eventName: 'UFC 322',
+        showModal: false,
+        selectingFor: 1, // 1 or 2
+        modalFighters: [],
+        modalSearch: '',
+
+        openFighterModal(fighterNumber) {
+            this.selectingFor = fighterNumber;
+            this.showModal = true;
+            this.searchFighters();
+        },
+
+        async searchFighters() {
+            const response = await fetch(`/api/fighters?search=${this.modalSearch}`);
+            this.modalFighters = await response.json();
+        },
+
+        async selectFighter(fighter) {
+            // Fetch fighter with last 5 fights
+            const response = await fetch(`/api/fighter/${fighter.id}`);
+            const fullFighter = await response.json();
+            
+            if (this.selectingFor === 1) {
+                this.fighter1 = fullFighter;
+            } else {
+                this.fighter2 = fullFighter;
+            }
+            this.showModal = false;
+        },
+
+        getFlagEmoji(nationality) {
+            const flags = {
+                'USA': '🇺🇸',
+                'France': '🇫🇷',
+                'Brazil': '🇧🇷',
+                'Russia': '🇷🇺',
+                'Ireland': '🇮🇪',
+                // Add more as needed
+            };
+            return flags[nationality] || '🏳️';
+        },
+
+        async saveMatch() {
+            if (!this.fighter1 || !this.fighter2) {
+                alert('Please select both fighters');
+                return;
+            }
+
+            const matchData = {
+                fighter1_id: this.fighter1.id,
+                fighter2_id: this.fighter2.id,
+                prediction: this.prediction,
+                rounds: 3,
+                is_title_fight: false
+            };
+
+            const response = await fetch('/api/matches', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(matchData)
+            });
+
+            if (response.ok) {
+                alert('Match saved successfully!');
+                window.location.href = '/cards';
+            } else {
+                alert('Failed to save match');
+            }
+        }
+    }
+}
+</script>
+{{end}}
