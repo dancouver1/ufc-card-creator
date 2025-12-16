@@ -49,7 +49,7 @@
                 
                 <div class="fighter-flag">
                     <span x-text="getFlagEmoji(fighter1?.nationality)"></span>
-                    <span class="record" x-text="fighter1?.wins + '-' + fighter1?.losses + '-' + fighter1?.draws"></span>
+                    <span class="record" x-text="getRecord(fighter1)"></span>
                 </div>
 
                 <div class="fighter-name-plate">
@@ -110,7 +110,7 @@
                 
                 <div class="fighter-flag">
                     <span x-text="getFlagEmoji(fighter2?.nationality)"></span>
-                    <span class="record" x-text="fighter2?.wins + '-' + fighter2?.losses + '-' + fighter2?.draws"></span>
+                    <span class="record" x-text="getRecord(fighter2)"></span>
                 </div>
 
                 <div class="fighter-name-plate">
@@ -120,40 +120,21 @@
         </div>
 
         <!-- Detailed Stats Comparison -->
-    <div class="stats-comparison">
-        <div class="stat-row">
-        <div class="stat-value" x-text="fighter1?.height_feet + `'` + (fighter1?.height_inches || 0) + `\"`"></div>
-        <div class="stat-label">HEIGHT</div>
-        <div class="stat-value" x-text="fighter2?.height_feet + `'` + (fighter2?.height_inches || 0) + `\"`"></div>
-    </div>
-    <div class="stat-row">
-        <div class="stat-value" x-text="(fighter1?.weight_lbs || 'N/A') + ' lbs'"></div>
-        <div class="stat-label">WEIGHT</div>
-        <div class="stat-value" x-text="(fighter2?.weight_lbs || 'N/A') + ' lbs'"></div>
-    </div>
-    <div class="stat-row">
-        <div class="stat-value" x-text="fighter1?.reach_cm ? ((fighter1.reach_cm / 2.54).toFixed(1) + `\"`) : 'N/A'"></div>
-        <div class="stat-label">REACH</div>
-        <div class="stat-value" x-text="fighter2?.reach_cm ? ((fighter2.reach_cm / 2.54).toFixed(1) + `\"`) : 'N/A'"></div>
-    </div>
-    <div class="stat-row">
-        <div class="stat-value" x-text="fighter1?.stance || 'N/A'"></div>
-        <div class="stat-label">STANCE</div>
-        <div class="stat-value" x-text="fighter2?.stance || 'N/A'"></div>
-        </div>
-    </div>
+        <div class="stats-comparison">
+            <div class="stat-row">
+                <div class="stat-value" x-text="getHeight(fighter1)"></div>
                 <div class="stat-label">HEIGHT</div>
-                <div class="stat-value" x-text="fighter2?.height_feet + \"'\" + fighter2?.height_inches + '\"'"></div>
+                <div class="stat-value" x-text="getHeight(fighter2)"></div>
             </div>
             <div class="stat-row">
-                <div class="stat-value" x-text="fighter1?.weight_lbs + ' lbs'"></div>
+                <div class="stat-value" x-text="getWeight(fighter1)"></div>
                 <div class="stat-label">WEIGHT</div>
-                <div class="stat-value" x-text="fighter2?.weight_lbs + ' lbs'"></div>
+                <div class="stat-value" x-text="getWeight(fighter2)"></div>
             </div>
             <div class="stat-row">
-                <div class="stat-value" x-text="(fighter1?.reach_cm / 2.54).toFixed(1) + '\"'"></div>
+                <div class="stat-value" x-text="getReach(fighter1)"></div>
                 <div class="stat-label">REACH</div>
-                <div class="stat-value" x-text="(fighter2?.reach_cm / 2.54).toFixed(1) + '\"'"></div>
+                <div class="stat-value" x-text="getReach(fighter2)"></div>
             </div>
             <div class="stat-row">
                 <div class="stat-value" x-text="fighter1?.stance || 'N/A'"></div>
@@ -209,9 +190,32 @@ function matchmaker() {
         prediction: null,
         eventName: 'UFC 322',
         showModal: false,
-        selectingFor: 1, // 1 or 2
+        selectingFor: 1,
         modalFighters: [],
         modalSearch: '',
+
+        // Helper functions
+        getHeight(fighter) {
+            if (!fighter || !fighter.height_feet) return 'N/A';
+            const inches = fighter.height_inches || 0;
+            return fighter.height_feet + "'" + inches + '"';
+        },
+
+        getWeight(fighter) {
+            if (!fighter || !fighter.weight_lbs) return 'N/A';
+            return fighter.weight_lbs + ' lbs';
+        },
+
+        getReach(fighter) {
+            if (!fighter || !fighter.reach_cm) return 'N/A';
+            const inches = (fighter.reach_cm / 2.54).toFixed(1);
+            return inches + '"';
+        },
+
+        getRecord(fighter) {
+            if (!fighter) return '0-0-0';
+            return fighter.wins + '-' + fighter.losses + '-' + fighter.draws;
+        },
 
         openFighterModal(fighterNumber) {
             this.selectingFor = fighterNumber;
@@ -220,13 +224,12 @@ function matchmaker() {
         },
 
         async searchFighters() {
-            const response = await fetch(`/api/fighters?search=${this.modalSearch}`);
+            const response = await fetch('/api/fighters?search=' + this.modalSearch);
             this.modalFighters = await response.json();
         },
 
         async selectFighter(fighter) {
-            // Fetch fighter with last 5 fights
-            const response = await fetch(`/api/fighter/${fighter.id}`);
+            const response = await fetch('/api/fighter/' + fighter.id);
             const fullFighter = await response.json();
             
             if (this.selectingFor === 1) {
@@ -244,7 +247,6 @@ function matchmaker() {
                 'Brazil': '🇧🇷',
                 'Russia': '🇷🇺',
                 'Ireland': '🇮🇪',
-                // Add more as needed
             };
             return flags[nationality] || '🏳️';
         },
