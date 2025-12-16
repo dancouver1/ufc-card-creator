@@ -1,0 +1,43 @@
+{{template "base.html" .}}
+
+{{define "title"}}My Cards - UFC Matchmaker{{end}}
+
+{{define "content"}}
+<div class="container">
+    <div class="page-header">
+        <h1>My Fight Cards</h1>
+        <button class="btn btn-primary" onclick="createNewCard()">Create New Card</button>
+    </div>
+
+    <div class="cards-grid">
+        {{range .Cards}}
+        <div class="card-item">
+            <h3>{{.CardName}}</h3>
+            {{if .CardNumber}}<p>UFC {{.CardNumber}}</p>{{end}}
+            {{if .Location}}<p>📍 {{.Location}}</p>{{end}}
+            <a href="/card/{{.ID}}" class="btn btn-sm">View Card</a>
+        </div>
+        {{else}}
+        <p class="no-results">No cards created yet. Create your first fight card!</p>
+        {{end}}
+    </div>
+</div>
+
+<script>
+function createNewCard() {
+    const name = prompt("Enter card name (e.g., UFC 322):");
+    if (!name) return;
+    
+    fetch('/api/cards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ card_name: name })
+    })
+    .then(res => res.json())
+    .then(() => {
+        location.reload();
+    })
+    .catch(err => alert('Failed to create card'));
+}
+</script>
+{{end}}
