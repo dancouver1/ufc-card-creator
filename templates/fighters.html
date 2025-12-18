@@ -1,33 +1,70 @@
-{{define "fighters.html"}}
-{{template "base.html" .}}
-{{end}}
+<!DOCTYPE html>
+<html lang="en">
 
-{{define "title"}}Fighters - UFC Matchmaker{{end}}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fighters - UFC Matchmaker</title>
 
-{{define "content"}}
-<div class="container">
-    <div class="page-header">
-        <h1>UFC Fighters Roster</h1>
-    </div>
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 
-    <div class="fighters-grid">
-        {{range .Fighters}}
-        <div class="fighter-card">
-            <div class="fighter-image">
-                <div class="fighter-placeholder">F</div>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/">UFC MATCHMAKER</a>
             </div>
-            <div class="fighter-info">
-                <h3>{{.Name}}</h3>
-                {{if .Nickname}}
-                <p class="nickname">{{.Nickname}}</p>
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/fighters">Fighters</a></li>
+                <li><a href="/matchmaker">Create Match</a></li>
+                <li><a href="/cards">My Cards</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1>UFC Fighters Roster</h1>
+            </div>
+
+            <div class="fighters-grid">
+                {{range .Fighters}}
+                <div class="fighter-card">
+                    <div class="fighter-image">
+                        <img src="{{if .FighterImageURL}}{{.FighterImageURL}}{{else}}/static/images/placeholder.png{{end}}"
+                            alt="{{.Name}}" style="width: 100%; height: 200px; object-fit: cover;">
+                    </div>
+                    <div class="fighter-info">
+                        <h3>{{.Name}}</h3>
+                        {{if .Nickname}}
+                        <p class="nickname">"{{.Nickname}}"</p>
+                        {{end}}
+                        <p class="record">{{.Wins}}-{{.Losses}}-{{.Draws}}</p>
+                        <p class="weight-class">{{.WeightClass}}</p>
+                    </div>
+                </div>
+                {{else}}
+                <p class="no-results">No fighters found</p>
                 {{end}}
-                <p class="record">{{.Wins}}-{{.Losses}}-{{.Draws}}</p>
-                <p class="weight-class">{{.WeightClass}}</p>
             </div>
         </div>
-        {{else}}
-        <p class="no-results">No fighters found</p>
-        {{end}}
-    </div>
-</div>
-{{end}}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 UFC Matchmaker. For educational purposes only.</p>
+        </div>
+    </footer>
+</body>
+
+</html>
