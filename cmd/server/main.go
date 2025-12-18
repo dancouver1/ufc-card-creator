@@ -64,10 +64,12 @@ func main() {
 		// Matches
 		r.Post("/matches", h.HandleCreateMatch)
 		r.Put("/matches/prediction", h.HandleUpdateMatchPrediction)
+		r.Delete("/matches/{id}", h.HandleDeleteMatch)
 
 		// Cards
 		r.Post("/cards", h.HandleCreateCard)
 		r.Get("/cards/{id}", h.HandleGetCardByID)
+		r.Delete("/cards/{id}", h.HandleDeleteCard)
 	})
 
 	// Health check endpoint

@@ -86,6 +86,20 @@ body {
     font-size: 1.2rem;
 }
 
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.875rem;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
 /* Hero Section */
 .hero {
     text-align: center;

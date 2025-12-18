@@ -81,3 +81,21 @@ func (h *Handler) HandleGetCardByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(card)
 }
+
+// HandleDeleteCard deletes a card
+func (h *Handler) HandleDeleteCard(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid card ID", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.DB.DeleteCard(ctx, id); err != nil {
+		http.Error(w, "Failed to delete card", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}

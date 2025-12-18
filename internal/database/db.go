@@ -271,7 +271,7 @@ func (db *DB) GetOrCreateActiveCard(ctx context.Context) (int, error) {
 	// No card exists, create a new one
 	now := time.Now()
 	cardName := fmt.Sprintf("My Card - %s", now.Format("2006-01-02"))
-	
+
 	card := models.Card{
 		CardName: cardName,
 	}
@@ -282,7 +282,6 @@ func (db *DB) GetOrCreateActiveCard(ctx context.Context) (int, error) {
 
 	return card.ID, nil
 }
-
 
 // GetCardByID retrieves a card with all its matches
 func (db *DB) GetCardByID(ctx context.Context, id int) (*models.Card, error) {
@@ -340,6 +339,30 @@ func (db *DB) GetAllCards(ctx context.Context) ([]models.Card, error) {
 	}
 
 	return cards, nil
+}
+
+// DeleteCard deletes a card and all its matches
+func (db *DB) DeleteCard(ctx context.Context, cardID int) error {
+	// Start a transaction to ensure both card and matches are deleted
+	tx, err := db.Pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to start transaction: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	// Delete matches first
+	_, err = tx.Exec(ctx, "DELETE FROM matches WHERE card_id = $1", cardID)
+	if err != nil {
+		return fmt.Errorf("failed to delete matches: %w", err)
+	}
+
+	// Delete card
+	_, err = tx.Exec(ctx, "DELETE FROM cards WHERE id = $1", cardID)
+	if err != nil {
+		return fmt.Errorf("failed to delete card: %w", err)
+	}
+
+	return tx.Commit(ctx)
 }
 
 // ============== MATCH METHODS ==============
@@ -432,6 +455,16 @@ func (db *DB) UpdateMatchPrediction(ctx context.Context, matchID int, prediction
 		return fmt.Errorf("update failed: %w", err)
 	}
 
+	return nil
+}
+
+// DeleteMatch deletes a specific match
+func (db *DB) DeleteMatch(ctx context.Context, matchID int) error {
+	query := `DELETE FROM matches WHERE id = $1`
+	_, err := db.Pool.Exec(ctx, query, matchID)
+	if err != nil {
+		return fmt.Errorf("delete failed: %w", err)
+	}
 	return nil
 }
 

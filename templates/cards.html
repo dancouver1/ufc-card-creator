@@ -45,6 +45,7 @@
                     {{if .CardNumber}}<p>UFC {{.CardNumber}}</p>{{end}}
                     {{if .Location}}<p>📍 {{.Location}}</p>{{end}}
                     <a href="/card/{{.ID}}" class="btn btn-sm">View Card</a>
+                    <button class="btn btn-sm btn-danger" onclick="deleteCard({{.ID}})">Delete</button>
                 </div>
                 {{else}}
                 <p class="no-results">No cards created yet. Create your first fight card!</p>
@@ -67,6 +68,19 @@
                         location.reload();
                     })
                     .catch(err => alert('Failed to create card'));
+            }
+
+            function deleteCard(id) {
+                if (!confirm('Are you sure you want to delete this card and all its matches?')) return;
+
+                fetch(`/api/cards/${id}`, {
+                    method: 'DELETE'
+                })
+                    .then(res => {
+                        if (res.ok) location.reload();
+                        else alert('Failed to delete card');
+                    })
+                    .catch(err => alert('Error deleting card'));
             }
         </script>
     </main>

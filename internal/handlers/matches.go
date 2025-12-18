@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/dancouver1/ufc-card-creator/internal/models"
+	"github.com/go-chi/chi/v5"
 )
 
 // HandleCreateMatch creates a new match
@@ -67,4 +69,22 @@ func (h *Handler) HandleUpdateMatchPrediction(w http.ResponseWriter, r *http.Req
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"message": "Prediction updated"}`))
+}
+
+// HandleDeleteMatch deletes a match
+func (h *Handler) HandleDeleteMatch(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid match ID", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.DB.DeleteMatch(ctx, id); err != nil {
+		http.Error(w, "Failed to delete match", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

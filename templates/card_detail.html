@@ -65,6 +65,9 @@
                         <span>{{.Rounds}} Rounds</span>
                         {{if .IsTitleFight}}<span class="title-fight">Title Fight</span>{{end}}
                     </div>
+                    <div class="match-actions" style="margin-top: 1rem; text-align: right;">
+                        <button class="btn btn-sm btn-danger" onclick="deleteMatch({{.ID}})">Delete Match</button>
+                    </div>
                 </div>
                 {{end}}
                 {{else}}
@@ -77,6 +80,21 @@
                 <a href="/matchmaker" class="btn btn-success">Add Match</a>
             </div>
         </div>
+
+        <script>
+            function deleteMatch(id) {
+                if (!confirm('Are you sure you want to delete this match?')) return;
+
+                fetch(`/api/matches/${id}`, {
+                    method: 'DELETE'
+                })
+                    .then(res => {
+                        if (res.ok) location.reload();
+                        else alert('Failed to delete match');
+                    })
+                    .catch(err => alert('Error deleting match'));
+            }
+        </script>
     </main>
 
     <footer class="footer">
