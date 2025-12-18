@@ -52,6 +52,7 @@ func main() {
 	r.Get("/fighters", h.HandleFightersPage)
 	r.Get("/matchmaker", h.HandleMatchmakerPage)
 	r.Get("/cards", h.HandleCardsPage)
+	r.Get("/card/{id}", h.HandleCardDetailPage)
 
 	// API Routes
 	r.Route("/api", func(r chi.Router) {

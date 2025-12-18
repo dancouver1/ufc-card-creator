@@ -1,4 +1,6 @@
+{{define "matchmaker.html"}}
 {{template "base.html" .}}
+{{end}}
 
 {{define "title"}}Create Match - UFC Matchmaker{{end}}
 
@@ -33,9 +35,16 @@
 
     <!-- Tale of the Tape (Only shows when both fighters selected) -->
     <div x-show="fighter1 && fighter2" class="tale-of-tape">
-        <!-- Event Header -->
+        <!-- Card Selection -->
         <div class="event-header">
-            <h2 class="event-name" x-text="eventName || 'UFC XXX'"></h2>
+            <label for="card-select" style="color: white; margin-right: 1rem;">Assign to Card:</label>
+            <select id="card-select" x-model="selectedCardId" class="card-select"
+                style="padding: 0.5rem; font-size: 1rem;">
+                <option value="">-- Select Card --</option>
+                {{range .Cards}}
+                <option value="{{.ID}}">{{.CardName}}</option>
+                {{end}}
+            </select>
         </div>
 
         <!-- Main Matchup -->
@@ -43,10 +52,9 @@
             <!-- Fighter 1 -->
             <div class="fighter-side">
                 <div class="fighter-image-large">
-                    <img :src="fighter1?.fighter_image_url || '/static/images/placeholder.png'" 
-                         :alt="fighter1?.name">
+                    <img :src="fighter1?.fighter_image_url || '/static/images/placeholder.png'" :alt="fighter1?.name">
                 </div>
-                
+
                 <div class="fighter-flag">
                     <span x-text="getFlagEmoji(fighter1?.nationality)"></span>
                     <span class="record" x-text="getRecord(fighter1)"></span>
@@ -60,14 +68,12 @@
             <!-- Center Stats -->
             <div class="center-stats">
                 <h3 class="last-5-title">LAST 5</h3>
-                
+
                 <div class="last-5-container">
                     <!-- Fighter 1 Last 5 -->
                     <div class="last-5-left">
                         <template x-for="fight in fighter1?.last_5_fights || []" :key="fight.id">
-                            <div class="fight-result" 
-                                 :class="fight.result"
-                                 x-text="fight.opponent_name">
+                            <div class="fight-result" :class="fight.result" x-text="fight.opponent_name">
                             </div>
                         </template>
                     </div>
@@ -75,9 +81,7 @@
                     <!-- Fighter 2 Last 5 -->
                     <div class="last-5-right">
                         <template x-for="fight in fighter2?.last_5_fights || []" :key="fight.id">
-                            <div class="fight-result" 
-                                 :class="fight.result"
-                                 x-text="fight.opponent_name">
+                            <div class="fight-result" :class="fight.result" x-text="fight.opponent_name">
                             </div>
                         </template>
                     </div>
@@ -85,18 +89,12 @@
 
                 <h3 class="prediction-title">Prediction</h3>
                 <div class="prediction-selector">
-                    <button 
-                        @click="prediction = fighter1.id"
-                        :class="{'selected': prediction === fighter1?.id}"
-                        class="prediction-btn"
-                        x-text="fighter1?.name">
+                    <button @click="prediction = fighter1.id" :class="{'selected': prediction === fighter1?.id}"
+                        class="prediction-btn" x-text="fighter1?.name">
                     </button>
                     <span class="or-text">or</span>
-                    <button 
-                        @click="prediction = fighter2.id"
-                        :class="{'selected': prediction === fighter2?.id}"
-                        class="prediction-btn"
-                        x-text="fighter2?.name">
+                    <button @click="prediction = fighter2.id" :class="{'selected': prediction === fighter2?.id}"
+                        class="prediction-btn" x-text="fighter2?.name">
                     </button>
                 </div>
             </div>
@@ -104,10 +102,9 @@
             <!-- Fighter 2 -->
             <div class="fighter-side">
                 <div class="fighter-image-large">
-                    <img :src="fighter2?.fighter_image_url || '/static/images/placeholder.png'" 
-                         :alt="fighter2?.name">
+                    <img :src="fighter2?.fighter_image_url || '/static/images/placeholder.png'" :alt="fighter2?.name">
                 </div>
-                
+
                 <div class="fighter-flag">
                     <span x-text="getFlagEmoji(fighter2?.nationality)"></span>
                     <span class="record" x-text="getRecord(fighter2)"></span>
@@ -152,23 +149,15 @@
     </div>
 
     <!-- Fighter Selection Modal -->
-    <div x-show="showModal" 
-         x-cloak 
-         @click.self="showModal = false"
-         class="modal-overlay">
+    <div x-show="showModal" x-cloak @click.self="showModal = false" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Select Fighter</h2>
                 <button @click="showModal = false" class="close-btn">&times;</button>
             </div>
             <div class="modal-body">
-                <input 
-                    type="text" 
-                    x-model="modalSearch"
-                    placeholder="Search fighters..."
-                    class="search-input"
-                    @input="searchFighters()"
-                >
+                <input type="text" x-model="modalSearch" placeholder="Search fighters..." class="search-input"
+                    @input="searchFighters()">
                 <div class="modal-fighters-list">
                     <template x-for="fighter in modalFighters" :key="fighter.id">
                         <div @click="selectFighter(fighter)" class="modal-fighter-item">
@@ -183,102 +172,108 @@
 </div>
 
 <script>
-function matchmaker() {
-    return {
-        fighter1: null,
-        fighter2: null,
-        prediction: null,
-        eventName: 'UFC 322',
-        showModal: false,
-        selectingFor: 1,
-        modalFighters: [],
-        modalSearch: '',
+    function matchmaker() {
+        return {
+            fighter1: null,
+            fighter2: null,
+            prediction: null,
+            selectedCardId: '',
+            showModal: false,
+            selectingFor: 1,
+            modalFighters: [],
+            modalSearch: '',
 
-        // Helper functions
-        getHeight(fighter) {
-            if (!fighter || !fighter.height_feet) return 'N/A';
-            const inches = fighter.height_inches || 0;
-            return fighter.height_feet + "'" + inches + '"';
-        },
+            // Helper functions
+            getHeight(fighter) {
+                if (!fighter || !fighter.height_feet) return 'N/A';
+                const inches = fighter.height_inches || 0;
+                return fighter.height_feet + "'" + inches + '"';
+            },
 
-        getWeight(fighter) {
-            if (!fighter || !fighter.weight_lbs) return 'N/A';
-            return fighter.weight_lbs + ' lbs';
-        },
+            getWeight(fighter) {
+                if (!fighter || !fighter.weight_lbs) return 'N/A';
+                return fighter.weight_lbs + ' lbs';
+            },
 
-        getReach(fighter) {
-            if (!fighter || !fighter.reach_cm) return 'N/A';
-            const inches = (fighter.reach_cm / 2.54).toFixed(1);
-            return inches + '"';
-        },
+            getReach(fighter) {
+                if (!fighter || !fighter.reach_cm) return 'N/A';
+                const inches = (fighter.reach_cm / 2.54).toFixed(1);
+                return inches + '"';
+            },
 
-        getRecord(fighter) {
-            if (!fighter) return '0-0-0';
-            return fighter.wins + '-' + fighter.losses + '-' + fighter.draws;
-        },
+            getRecord(fighter) {
+                if (!fighter) return '0-0-0';
+                return fighter.wins + '-' + fighter.losses + '-' + fighter.draws;
+            },
 
-        openFighterModal(fighterNumber) {
-            this.selectingFor = fighterNumber;
-            this.showModal = true;
-            this.searchFighters();
-        },
+            openFighterModal(fighterNumber) {
+                this.selectingFor = fighterNumber;
+                this.showModal = true;
+                this.searchFighters();
+            },
 
-        async searchFighters() {
-            const response = await fetch('/api/fighters?search=' + this.modalSearch);
-            this.modalFighters = await response.json();
-        },
+            async searchFighters() {
+                const response = await fetch('/api/fighters?search=' + this.modalSearch);
+                this.modalFighters = await response.json();
+            },
 
-        async selectFighter(fighter) {
-            const response = await fetch('/api/fighter/' + fighter.id);
-            const fullFighter = await response.json();
-            
-            if (this.selectingFor === 1) {
-                this.fighter1 = fullFighter;
-            } else {
-                this.fighter2 = fullFighter;
-            }
-            this.showModal = false;
-        },
+            async selectFighter(fighter) {
+                const response = await fetch('/api/fighter/' + fighter.id);
+                const fullFighter = await response.json();
 
-        getFlagEmoji(nationality) {
-            const flags = {
-                'USA': '🇺🇸',
-                'France': '🇫🇷',
-                'Brazil': '🇧🇷',
-                'Russia': '🇷🇺',
-                'Ireland': '🇮🇪',
-            };
-            return flags[nationality] || '🏳️';
-        },
+                if (this.selectingFor === 1) {
+                    this.fighter1 = fullFighter;
+                } else {
+                    this.fighter2 = fullFighter;
+                }
+                this.showModal = false;
+            },
 
-        async saveMatch() {
-            if (!this.fighter1 || !this.fighter2) {
-                alert('Please select both fighters');
-                return;
-            }
+            getFlagEmoji(nationality) {
+                const flags = {
+                    'USA': '🇺🇸',
+                    'France': '🇫🇷',
+                    'Brazil': '🇧🇷',
+                    'Russia': '🇷🇺',
+                    'Ireland': '🇮🇪',
+                };
+                return flags[nationality] || '🏳️';
+            },
 
-            const matchData = {
-                fighter1_id: this.fighter1.id,
-                fighter2_id: this.fighter2.id,
-                prediction: this.prediction,
-                rounds: 3,
-                is_title_fight: false
-            };
+            async saveMatch() {
+                if (!this.fighter1 || !this.fighter2) {
+                    alert('Please select both fighters');
+                    return;
+                }
 
-            const response = await fetch('/api/matches', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(matchData)
-            });
+                if (!this.selectedCardId) {
+                    alert('Please select a card to assign this match to');
+                    return;
+                }
 
-            if (response.ok) {
-                alert('Match saved successfully!');
-                window.location.href = '/cards';
-            } else {
-                alert('Failed to save match');
+                const matchData = {
+                    card_id: parseInt(this.selectedCardId),
+                    fighter1_id: this.fighter1.id,
+                    fighter2_id: this.fighter2.id,
+                    prediction: this.prediction,
+                    rounds: 3,
+                    is_title_fight: false
+                };
+
+                const response = await fetch('/api/matches', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(matchData)
+                });
+
+                if (response.ok) {
+                    alert('Match saved successfully!');
+                    window.location.href = '/card/' + this.selectedCardId;
+                } else {
+                    alert('Failed to save match');
+                }
             }
         }
     }
-}
 </script>
 {{end}}

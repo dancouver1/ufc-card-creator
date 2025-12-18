@@ -1,43 +1,81 @@
-{{template "base.html" .}}
+<!DOCTYPE html>
+<html lang="en">
 
-{{define "title"}}My Cards - UFC Matchmaker{{end}}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Cards - UFC Matchmaker</title>
 
-{{define "content"}}
-<div class="container">
-    <div class="page-header">
-        <h1>My Fight Cards</h1>
-        <button class="btn btn-primary" onclick="createNewCard()">Create New Card</button>
-    </div>
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 
-    <div class="cards-grid">
-        {{range .Cards}}
-        <div class="card-item">
-            <h3>{{.CardName}}</h3>
-            {{if .CardNumber}}<p>UFC {{.CardNumber}}</p>{{end}}
-            {{if .Location}}<p>📍 {{.Location}}</p>{{end}}
-            <a href="/card/{{.ID}}" class="btn btn-sm">View Card</a>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/">UFC MATCHMAKER</a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/fighters">Fighters</a></li>
+                <li><a href="/matchmaker">Create Match</a></li>
+                <li><a href="/cards">My Cards</a></li>
+            </ul>
         </div>
-        {{else}}
-        <p class="no-results">No cards created yet. Create your first fight card!</p>
-        {{end}}
-    </div>
-</div>
+    </nav>
 
-<script>
-function createNewCard() {
-    const name = prompt("Enter card name (e.g., UFC 322):");
-    if (!name) return;
-    
-    fetch('/api/cards', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ card_name: name })
-    })
-    .then(res => res.json())
-    .then(() => {
-        location.reload();
-    })
-    .catch(err => alert('Failed to create card'));
-}
-</script>
-{{end}}
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1>My Fight Cards</h1>
+                <button class="btn btn-primary" onclick="createNewCard()">Create New Card</button>
+            </div>
+
+            <div class="cards-grid">
+                {{range .Cards}}
+                <div class="card-item">
+                    <h3>{{.CardName}}</h3>
+                    {{if .CardNumber}}<p>UFC {{.CardNumber}}</p>{{end}}
+                    {{if .Location}}<p>📍 {{.Location}}</p>{{end}}
+                    <a href="/card/{{.ID}}" class="btn btn-sm">View Card</a>
+                </div>
+                {{else}}
+                <p class="no-results">No cards created yet. Create your first fight card!</p>
+                {{end}}
+            </div>
+        </div>
+
+        <script>
+            function createNewCard() {
+                const name = prompt("Enter card name (e.g., UFC 322):");
+                if (!name) return;
+
+                fetch('/api/cards', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ card_name: name })
+                })
+                    .then(res => res.json())
+                    .then(() => {
+                        location.reload();
+                    })
+                    .catch(err => alert('Failed to create card'));
+            }
+        </script>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 UFC Matchmaker. For educational purposes only.</p>
+        </div>
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Card.CardName}} - UFC Matchmaker</title>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/">UFC MATCHMAKER</a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/fighters">Fighters</a></li>
+                <li><a href="/matchmaker">Create Match</a></li>
+                <li><a href="/cards">My Cards</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1>{{.Card.CardName}}</h1>
+                {{if .Card.Location}}<p>📍 {{.Card.Location}}</p>{{end}}
+                {{if .Card.EventDate}}<p>📅 {{.Card.EventDate}}</p>{{end}}
+            </div>
+
+            <div class="matches-list">
+                {{if .Card.Matches}}
+                {{range .Card.Matches}}
+                <div class="match-card">
+                    <div class="match-fighters">
+                        <div class="fighter-info">
+                            <img src="{{.Fighter1.FighterImageURL}}" alt="{{.Fighter1.Name}}" class="fighter-img">
+                            <div>
+                                <h3>{{.Fighter1.Name}}</h3>
+                                <p>{{.Fighter1.Wins}}-{{.Fighter1.Losses}}-{{.Fighter1.Draws}}</p>
+                            </div>
+                        </div>
+                        <div class="vs">VS</div>
+                        <div class="fighter-info">
+                            <img src="{{.Fighter2.FighterImageURL}}" alt="{{.Fighter2.Name}}" class="fighter-img">
+                            <div>
+                                <h3>{{.Fighter2.Name}}</h3>
+                                <p>{{.Fighter2.Wins}}-{{.Fighter2.Losses}}-{{.Fighter2.Draws}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="match-details">
+                        {{if .WeightClass}}<span>{{.WeightClass}}</span>{{end}}
+                        <span>{{.Rounds}} Rounds</span>
+                        {{if .IsTitleFight}}<span class="title-fight">Title Fight</span>{{end}}
+                    </div>
+                </div>
+                {{end}}
+                {{else}}
+                <p class="no-results">No matches in this card yet.</p>
+                {{end}}
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <a href="/cards" class="btn btn-primary">Back to Cards</a>
+                <a href="/matchmaker" class="btn btn-success">Add Match</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 UFC Matchmaker. For educational purposes only.</p>
+        </div>
+    </footer>
+</body>
+
+</html>

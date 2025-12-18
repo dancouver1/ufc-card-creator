@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/dancouver1/ufc-card-creator/internal/models"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -250,6 +251,38 @@ func (db *DB) CreateCard(ctx context.Context, card *models.Card) error {
 
 	return nil
 }
+
+// GetOrCreateActiveCard retrieves the most recent card or creates a new one if none exists
+func (db *DB) GetOrCreateActiveCard(ctx context.Context) (int, error) {
+	// Try to get the most recent card
+	var cardID int
+	query := `
+        SELECT id FROM cards
+        ORDER BY created_at DESC
+        LIMIT 1
+    `
+
+	err := db.Pool.QueryRow(ctx, query).Scan(&cardID)
+	if err == nil {
+		// Card found, return its ID
+		return cardID, nil
+	}
+
+	// No card exists, create a new one
+	now := time.Now()
+	cardName := fmt.Sprintf("My Card - %s", now.Format("2006-01-02"))
+	
+	card := models.Card{
+		CardName: cardName,
+	}
+
+	if err := db.CreateCard(ctx, &card); err != nil {
+		return 0, fmt.Errorf("failed to create card: %w", err)
+	}
+
+	return card.ID, nil
+}
+
 
 // GetCardByID retrieves a card with all its matches
 func (db *DB) GetCardByID(ctx context.Context, id int) (*models.Card, error) {

@@ -3,11 +3,12 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/dancouver1/ufc-card-creator/internal/models"
+	"github.com/go-chi/chi/v5"
 )
 
 // HandleCardsPage renders the cards list page
@@ -24,8 +25,12 @@ func (h *Handler) HandleCardsPage(w http.ResponseWriter, r *http.Request) {
 		"Cards": cards,
 	}
 
+	// Debug: log the number of cards
+	log.Printf("Rendering cards page with %d cards", len(cards))
+
 	err = h.Templates.ExecuteTemplate(w, "cards.html", data)
 	if err != nil {
+		log.Printf("Error executing cards template: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

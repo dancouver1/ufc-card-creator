@@ -29,6 +29,12 @@ func (h *Handler) HandleCreateMatch(w http.ResponseWriter, r *http.Request) {
 		match.Rounds = 3
 	}
 
+	// Validate that a card is selected (sent from frontend)
+	if match.CardID == nil || *match.CardID <= 0 {
+		http.Error(w, "Please select a card to assign this match to", http.StatusBadRequest)
+		return
+	}
+
 	// Create the match
 	if err := h.DB.CreateMatch(ctx, &match); err != nil {
 		http.Error(w, "Failed to create match", http.StatusInternalServerError)
