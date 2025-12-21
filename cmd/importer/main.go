@@ -53,7 +53,6 @@ func main() {
 
 	ctx := context.Background()
 	count := 0
-	updated := 0
 
 	for {
 		record, err := reader.Read()
