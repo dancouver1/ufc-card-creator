@@ -51,30 +51,27 @@
                     {{if .IsCoMainEvent}}<div class="event-tag">CO-MAIN EVENT</div>{{end}}
 
                     <div class="match-fighters">
-                        <div class="fighter-info">
-                            <img src="{{.Fighter1.FighterImageURL}}" alt="{{.Fighter1.Name}}" class="fighter-img">
-                            <div>
-                                <h3>{{.Fighter1.Name}}</h3>
-                                <p>{{.Fighter1.Wins}}-{{.Fighter1.Losses}}-{{.Fighter1.Draws}}</p>
+                        <img src="{{if .Fighter1.FighterImageURL}}{{.Fighter1.FighterImageURL}}{{else}}/static/images/placeholder.png{{end}}"
+                            class="fighter-bg-img left" alt="{{.Fighter1.Name}}">
+                        <img src="{{if .Fighter2.FighterImageURL}}{{.Fighter2.FighterImageURL}}{{else}}/static/images/placeholder.png{{end}}"
+                            class="fighter-bg-img right" alt="{{.Fighter2.Name}}">
+
+                        <div class="match-info-center">
+                            <div class="match-bout-info">
+                                {{if .WeightClass}}{{.WeightClass}}{{end}} {{if .IsTitleFight}}TITLE {{end}}BOUT
                             </div>
-                        </div>
-                        <div class="vs">VS</div>
-                        <div class="fighter-info">
-                            <img src="{{.Fighter2.FighterImageURL}}" alt="{{.Fighter2.Name}}" class="fighter-img">
-                            <div>
-                                <h3>{{.Fighter2.Name}}</h3>
-                                <p>{{.Fighter2.Wins}}-{{.Fighter2.Losses}}-{{.Fighter2.Draws}}</p>
+                            <div class="match-fighter-names">
+                                {{.Fighter1.Name}} <span class="vs-text">vs</span> {{.Fighter2.Name}}
                             </div>
                         </div>
                     </div>
-                    <div class="match-details">
-                        {{if .WeightClass}}<span>{{.WeightClass}}</span>{{end}}
-                        <span>{{.Rounds}} Rounds</span>
-                        {{if .IsTitleFight}}<span class="title-fight">{{if .TitleType}}{{.TitleType}} {{end}}Title
-                            Fight</span>{{end}}
+
+                    <div class="match-details-bar">
+                        {{.Rounds}} Rounds • {{if .IsTitleFight}}{{.TitleType}} {{end}}Match
                     </div>
-                    <div class="match-actions" style="margin-top: 1rem; text-align: right;">
-                        <button class="btn btn-sm btn-danger" onclick="deleteMatch({{.ID}})">Delete Match</button>
+
+                    <div class="match-actions-overlay">
+                        <button class="btn btn-sm btn-danger" onclick="deleteMatch({{.ID}})">Delete</button>
                     </div>
                 </div>
                 {{end}}
@@ -86,30 +83,27 @@
                 {{if eq .CardPart "Prelims"}}
                 <div class="match-card">
                     <div class="match-fighters">
-                        <div class="fighter-info">
-                            <img src="{{.Fighter1.FighterImageURL}}" alt="{{.Fighter1.Name}}" class="fighter-img">
-                            <div>
-                                <h3>{{.Fighter1.Name}}</h3>
-                                <p>{{.Fighter1.Wins}}-{{.Fighter1.Losses}}-{{.Fighter1.Draws}}</p>
+                        <img src="{{if .Fighter1.FighterImageURL}}{{.Fighter1.FighterImageURL}}{{else}}/static/images/placeholder.png{{end}}"
+                            class="fighter-bg-img left" alt="{{.Fighter1.Name}}">
+                        <img src="{{if .Fighter2.FighterImageURL}}{{.Fighter2.FighterImageURL}}{{else}}/static/images/placeholder.png{{end}}"
+                            class="fighter-bg-img right" alt="{{.Fighter2.Name}}">
+
+                        <div class="match-info-center">
+                            <div class="match-bout-info">
+                                {{if .WeightClass}}{{.WeightClass}}{{end}} {{if .IsTitleFight}}TITLE {{end}}BOUT
                             </div>
-                        </div>
-                        <div class="vs">VS</div>
-                        <div class="fighter-info">
-                            <img src="{{.Fighter2.FighterImageURL}}" alt="{{.Fighter2.Name}}" class="fighter-img">
-                            <div>
-                                <h3>{{.Fighter2.Name}}</h3>
-                                <p>{{.Fighter2.Wins}}-{{.Fighter2.Losses}}-{{.Fighter2.Draws}}</p>
+                            <div class="match-fighter-names" style="font-size: 1.8rem;">
+                                {{.Fighter1.Name}} <span class="vs-text">vs</span> {{.Fighter2.Name}}
                             </div>
                         </div>
                     </div>
-                    <div class="match-details">
-                        {{if .WeightClass}}<span>{{.WeightClass}}</span>{{end}}
-                        <span>{{.Rounds}} Rounds</span>
-                        {{if .IsTitleFight}}<span class="title-fight">{{if .TitleType}}{{.TitleType}} {{end}}Title
-                            Fight</span>{{end}}
+
+                    <div class="match-details-bar">
+                        {{.Rounds}} Rounds • {{if .IsTitleFight}}{{.TitleType}} {{end}}Match
                     </div>
-                    <div class="match-actions" style="margin-top: 1rem; text-align: right;">
-                        <button class="btn btn-sm btn-danger" onclick="deleteMatch({{.ID}})">Delete Match</button>
+
+                    <div class="match-actions-overlay">
+                        <button class="btn btn-sm btn-danger" onclick="deleteMatch({{.ID}})">Delete</button>
                     </div>
                 </div>
                 {{end}}
