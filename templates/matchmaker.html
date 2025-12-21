@@ -169,6 +169,61 @@
                     </div>
                 </div>
 
+                <!-- Fight Options -->
+                <div class="fight-options">
+                    <h3>Fight Options</h3>
+                    <div class="options-grid">
+                        <div class="option-item">
+                            <label class="checkbox-container">
+                                <input type="checkbox" x-model="isMainEvent">
+                                <span class="checkmark"></span>
+                                Main Event
+                            </label>
+                        </div>
+                        <div class="option-item">
+                            <label class="checkbox-container">
+                                <input type="checkbox" x-model="isCoMainEvent">
+                                <span class="checkmark"></span>
+                                Co-Main Event
+                            </label>
+                        </div>
+                        <div class="option-item">
+                            <label class="checkbox-container">
+                                <input type="checkbox" x-model="isTitleFight">
+                                <span class="checkmark"></span>
+                                Title Fight
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="extra-options">
+                        <div x-show="isTitleFight" class="option-field">
+                            <label for="title-type">Title Type:</label>
+                            <select id="title-type" x-model="titleType">
+                                <option value="Undisputed">Undisputed</option>
+                                <option value="Interim">Interim</option>
+                                <option value="BMF">BMF</option>
+                            </select>
+                        </div>
+
+                        <div class="option-field">
+                            <label for="card-part">Card Part:</label>
+                            <select id="card-part" x-model="cardPart">
+                                <option value="Main Card">Main Card</option>
+                                <option value="Prelims">Prelims</option>
+                            </select>
+                        </div>
+
+                        <div class="option-field">
+                            <label for="rounds-select">Rounds:</label>
+                            <select id="rounds-select" x-model="rounds">
+                                <option value="3">3 Rounds</option>
+                                <option value="5">5 Rounds</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Save Match Button -->
                 <div class="save-section">
                     <button @click="saveMatch()" class="btn btn-success btn-lg">
@@ -211,6 +266,12 @@
                     selectingFor: 1,
                     modalFighters: [],
                     modalSearch: '',
+                    isMainEvent: false,
+                    isCoMainEvent: false,
+                    isTitleFight: false,
+                    titleType: 'Undisputed',
+                    cardPart: 'Main Card',
+                    rounds: 3,
 
                     // Helper functions
                     getHeight(fighter) {
@@ -285,8 +346,12 @@
                             fighter1_id: this.fighter1.id,
                             fighter2_id: this.fighter2.id,
                             prediction: this.prediction,
-                            rounds: 3,
-                            is_title_fight: false
+                            rounds: parseInt(this.rounds),
+                            is_title_fight: this.isTitleFight,
+                            is_main_event: this.isMainEvent,
+                            is_co_main_event: this.isCoMainEvent,
+                            title_type: this.isTitleFight ? this.titleType : null,
+                            card_part: this.cardPart
                         };
 
                         const response = await fetch('/api/matches', {

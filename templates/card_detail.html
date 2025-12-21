@@ -41,7 +41,49 @@
 
             <div class="matches-list">
                 {{if .Card.Matches}}
+
+                <!-- Main Card -->
+                <h2 class="section-title">Main Card</h2>
                 {{range .Card.Matches}}
+                {{if eq .CardPart "Main Card"}}
+                <div class="match-card {{if .IsMainEvent}}main-event{{else if .IsCoMainEvent}}co-main{{end}}">
+                    {{if .IsMainEvent}}<div class="event-tag">MAIN EVENT</div>{{end}}
+                    {{if .IsCoMainEvent}}<div class="event-tag">CO-MAIN EVENT</div>{{end}}
+
+                    <div class="match-fighters">
+                        <div class="fighter-info">
+                            <img src="{{.Fighter1.FighterImageURL}}" alt="{{.Fighter1.Name}}" class="fighter-img">
+                            <div>
+                                <h3>{{.Fighter1.Name}}</h3>
+                                <p>{{.Fighter1.Wins}}-{{.Fighter1.Losses}}-{{.Fighter1.Draws}}</p>
+                            </div>
+                        </div>
+                        <div class="vs">VS</div>
+                        <div class="fighter-info">
+                            <img src="{{.Fighter2.FighterImageURL}}" alt="{{.Fighter2.Name}}" class="fighter-img">
+                            <div>
+                                <h3>{{.Fighter2.Name}}</h3>
+                                <p>{{.Fighter2.Wins}}-{{.Fighter2.Losses}}-{{.Fighter2.Draws}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="match-details">
+                        {{if .WeightClass}}<span>{{.WeightClass}}</span>{{end}}
+                        <span>{{.Rounds}} Rounds</span>
+                        {{if .IsTitleFight}}<span class="title-fight">{{if .TitleType}}{{.TitleType}} {{end}}Title
+                            Fight</span>{{end}}
+                    </div>
+                    <div class="match-actions" style="margin-top: 1rem; text-align: right;">
+                        <button class="btn btn-sm btn-danger" onclick="deleteMatch({{.ID}})">Delete Match</button>
+                    </div>
+                </div>
+                {{end}}
+                {{end}}
+
+                <!-- Prelims -->
+                <h2 class="section-title">Prelims</h2>
+                {{range .Card.Matches}}
+                {{if eq .CardPart "Prelims"}}
                 <div class="match-card">
                     <div class="match-fighters">
                         <div class="fighter-info">
@@ -63,13 +105,16 @@
                     <div class="match-details">
                         {{if .WeightClass}}<span>{{.WeightClass}}</span>{{end}}
                         <span>{{.Rounds}} Rounds</span>
-                        {{if .IsTitleFight}}<span class="title-fight">Title Fight</span>{{end}}
+                        {{if .IsTitleFight}}<span class="title-fight">{{if .TitleType}}{{.TitleType}} {{end}}Title
+                            Fight</span>{{end}}
                     </div>
                     <div class="match-actions" style="margin-top: 1rem; text-align: right;">
                         <button class="btn btn-sm btn-danger" onclick="deleteMatch({{.ID}})">Delete Match</button>
                     </div>
                 </div>
                 {{end}}
+                {{end}}
+
                 {{else}}
                 <p class="no-results">No matches in this card yet.</p>
                 {{end}}

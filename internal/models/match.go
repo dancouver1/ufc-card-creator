@@ -5,14 +5,18 @@ import (
 )
 
 type Match struct {
-	ID           int     `json:"id"`
-	CardID       *int    `json:"card_id,omitempty"`
-	Fighter1ID   int     `json:"fighter1_id"`
-	Fighter2ID   int     `json:"fighter2_id"`
-	FightOrder   *int    `json:"fight_order,omitempty"`
-	WeightClass  *string `json:"weight_class,omitempty"`
-	IsTitleFight bool    `json:"is_title_fight"`
-	Rounds       int     `json:"rounds"`
+	ID             int     `json:"id"`
+	CardID         *int    `json:"card_id,omitempty"`
+	Fighter1ID     int     `json:"fighter1_id"`
+	Fighter2ID     int     `json:"fighter2_id"`
+	FightOrder     *int    `json:"fight_order,omitempty"`
+	WeightClass    *string `json:"weight_class,omitempty"`
+	IsTitleFight   bool    `json:"is_title_fight"`
+	Rounds         int     `json:"rounds"`
+	IsMainEvent    bool    `json:"is_main_event"`
+	IsCoMainEvent  bool    `json:"is_co_main_event"`
+	TitleType      *string `json:"title_type,omitempty"`
+	CardPart       string  `json:"card_part"`
 
 	// NEW: Prediction field
 	Prediction *int `json:"prediction,omitempty"` // Fighter ID of predicted winner (NULL if no prediction)

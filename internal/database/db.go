@@ -372,8 +372,9 @@ func (db *DB) CreateMatch(ctx context.Context, match *models.Match) error {
 	query := `
         INSERT INTO matches (
             card_id, fighter1_id, fighter2_id, fight_order,
-            weight_class, is_title_fight, rounds, prediction
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            weight_class, is_title_fight, rounds, prediction,
+            is_main_event, is_co_main_event, title_type, card_part
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
         RETURNING id, created_at, updated_at
     `
 
@@ -381,6 +382,7 @@ func (db *DB) CreateMatch(ctx context.Context, match *models.Match) error {
 		ctx, query,
 		match.CardID, match.Fighter1ID, match.Fighter2ID, match.FightOrder,
 		match.WeightClass, match.IsTitleFight, match.Rounds, match.Prediction,
+		match.IsMainEvent, match.IsCoMainEvent, match.TitleType, match.CardPart,
 	).Scan(&match.ID, &match.CreatedAt, &match.UpdatedAt)
 
 	if err != nil {
@@ -395,7 +397,9 @@ func (db *DB) GetMatchesByCardID(ctx context.Context, cardID int) ([]models.Matc
 	query := `
         SELECT 
             m.id, m.card_id, m.fighter1_id, m.fighter2_id, m.fight_order,
-            m.weight_class, m.is_title_fight, m.rounds, m.prediction, m.created_at, m.updated_at,
+            m.weight_class, m.is_title_fight, m.rounds, m.prediction,
+            m.is_main_event, m.is_co_main_event, m.title_type, m.card_part,
+            m.created_at, m.updated_at,
             f1.id, f1.name, f1.nickname, f1.height_feet, f1.height_inches,
             f1.weight_lbs, f1.reach_cm, f1.weight_class, f1.stance,
             f1.wins, f1.losses, f1.draws, f1.fighter_image_url,
@@ -422,7 +426,9 @@ func (db *DB) GetMatchesByCardID(ctx context.Context, cardID int) ([]models.Matc
 
 		err := rows.Scan(
 			&m.ID, &m.CardID, &m.Fighter1ID, &m.Fighter2ID, &m.FightOrder,
-			&m.WeightClass, &m.IsTitleFight, &m.Rounds, &m.Prediction, &m.CreatedAt, &m.UpdatedAt,
+			&m.WeightClass, &m.IsTitleFight, &m.Rounds, &m.Prediction,
+			&m.IsMainEvent, &m.IsCoMainEvent, &m.TitleType, &m.CardPart,
+			&m.CreatedAt, &m.UpdatedAt,
 			&f1.ID, &f1.Name, &f1.Nickname, &f1.HeightFeet, &f1.HeightInches,
 			&f1.WeightLbs, &f1.ReachCm, &f1.WeightClass, &f1.Stance,
 			&f1.Wins, &f1.Losses, &f1.Draws, &f1.FighterImageURL,
