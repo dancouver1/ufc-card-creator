@@ -230,6 +230,45 @@ func (db *DB) CreateFighter(ctx context.Context, fighter *models.Fighter) error 
 	return nil
 }
 
+// UpsertFighter inserts or updates a fighter based on name
+func (db *DB) UpsertFighter(ctx context.Context, fighter *models.Fighter) error {
+	query := `
+        INSERT INTO fighters (
+            name, nickname, height_feet, height_inches, weight_lbs,
+            reach_cm, leg_reach_cm, weight_class, stance, wins, losses, draws,
+            date_of_birth, nationality, fighter_image_url, is_active, last_fight_date
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+        ON CONFLICT (name) DO UPDATE SET
+            nickname = EXCLUDED.nickname,
+            height_feet = COALESCE(EXCLUDED.height_feet, fighters.height_feet),
+            height_inches = COALESCE(EXCLUDED.height_inches, fighters.height_inches),
+            weight_lbs = COALESCE(EXCLUDED.weight_lbs, fighters.weight_lbs),
+            reach_cm = COALESCE(EXCLUDED.reach_cm, fighters.reach_cm),
+            weight_class = EXCLUDED.weight_class,
+            stance = EXCLUDED.stance,
+            wins = EXCLUDED.wins,
+            losses = EXCLUDED.losses,
+            draws = EXCLUDED.draws,
+            updated_at = CURRENT_TIMESTAMP
+        RETURNING id, created_at, updated_at
+    `
+
+	err := db.Pool.QueryRow(
+		ctx, query,
+		fighter.Name, fighter.Nickname, fighter.HeightFeet, fighter.HeightInches,
+		fighter.WeightLbs, fighter.ReachCm, fighter.LegReachCm, fighter.WeightClass,
+		fighter.Stance, fighter.Wins, fighter.Losses, fighter.Draws,
+		fighter.DateOfBirth, fighter.Nationality, fighter.FighterImageURL,
+		fighter.IsActive, fighter.LastFightDate,
+	).Scan(&fighter.ID, &fighter.CreatedAt, &fighter.UpdatedAt)
+
+	if err != nil {
+		return fmt.Errorf("upsert failed: %w", err)
+	}
+
+	return nil
+}
+
 // ============== CARD METHODS ==============
 
 // CreateCard inserts a new card into the database

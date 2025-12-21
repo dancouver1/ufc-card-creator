@@ -175,7 +175,7 @@
                     <div class="options-grid">
                         <div class="option-item">
                             <label class="checkbox-container">
-                                <input type="checkbox" x-model="isMainEvent">
+                                <input type="checkbox" x-model="isMainEvent" @change="if(isMainEvent) rounds = 5">
                                 <span class="checkmark"></span>
                                 Main Event
                             </label>
@@ -189,7 +189,7 @@
                         </div>
                         <div class="option-item">
                             <label class="checkbox-container">
-                                <input type="checkbox" x-model="isTitleFight">
+                                <input type="checkbox" x-model="isTitleFight" @change="if(isTitleFight) rounds = 5">
                                 <span class="checkmark"></span>
                                 Title Fight
                             </label>
