@@ -52,9 +52,11 @@
 
                     <div class="match-fighters">
                         <img src="{{if .Fighter1.FighterImageURL}}{{.Fighter1.FighterImageURL}}{{else}}/static/images/placeholder.png{{end}}"
-                            class="fighter-bg-img left" alt="{{.Fighter1.Name}}">
+                            class="fighter-bg-img left" alt="{{.Fighter1.Name}}"
+                            style="object-fit: cover; object-position: top;">
                         <img src="{{if .Fighter2.FighterImageURL}}{{.Fighter2.FighterImageURL}}{{else}}/static/images/placeholder.png{{end}}"
-                            class="fighter-bg-img right" alt="{{.Fighter2.Name}}">
+                            class="fighter-bg-img right" alt="{{.Fighter2.Name}}"
+                            style="object-fit: cover; object-position: top;">
 
                         <div class="match-info-center">
                             <div class="match-bout-info">
@@ -84,9 +86,11 @@
                 <div class="match-card">
                     <div class="match-fighters">
                         <img src="{{if .Fighter1.FighterImageURL}}{{.Fighter1.FighterImageURL}}{{else}}/static/images/placeholder.png{{end}}"
-                            class="fighter-bg-img left" alt="{{.Fighter1.Name}}">
+                            class="fighter-bg-img left" alt="{{.Fighter1.Name}}"
+                            style="object-fit: cover; object-position: top;">
                         <img src="{{if .Fighter2.FighterImageURL}}{{.Fighter2.FighterImageURL}}{{else}}/static/images/placeholder.png{{end}}"
-                            class="fighter-bg-img right" alt="{{.Fighter2.Name}}">
+                            class="fighter-bg-img right" alt="{{.Fighter2.Name}}"
+                            style="object-fit: cover; object-position: top;">
 
                         <div class="match-info-center">
                             <div class="match-bout-info">
