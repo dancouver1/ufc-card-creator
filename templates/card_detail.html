@@ -94,7 +94,7 @@
 
                         <div class="match-info-center">
                             <div class="match-bout-info">
-                                {{if .WeightClass}}{{.WeightClass}}{{end}} {{if .IsTitleFight}}TITLE {{end}}BOUT
+                                {{with .WeightClass}}{{.}}{{else}}Catchweight{{end}} {{if .IsTitleFight}}TITLE {{end}}BOUT
                             </div>
                             <div class="match-fighter-names" style="font-size: 1.8rem;">
                                 {{.Fighter1.Name}} <span class="vs-text">vs</span> {{.Fighter2.Name}}
