@@ -207,8 +207,15 @@
                         </div>
 
                         <div class="option-field">
+                            <label for="weight-class">Weight Class:</label>
+                            <input type="text" id="weight-class" x-model="weightClass" placeholder="e.g. Lightweight"
+                                style="padding: 0.5rem; border-radius: 4px; border: 1px solid #444; background: #222; color: white;">
+                        </div>
+
+                        <div class="option-field">
                             <label for="card-part">Card Part:</label>
-                            <select id="card-part" x-model="cardPart">
+                            <select id="card-part" x-model="cardPart"
+                                style="padding: 0.5rem; background: #222; color: white; border: 1px solid #444; border-radius: 4px;">
                                 <option value="Main Card">Main Card</option>
                                 <option value="Prelims">Prelims</option>
                             </select>
@@ -216,160 +223,171 @@
 
                         <div class="option-field">
                             <label for="rounds-select">Rounds:</label>
-                            <select id="rounds-select" x-model="rounds">
+                            <select id="rounds-select" x-model="rounds"
+                                style="padding: 0.5rem; background: #222; color: white; border: 1px solid #444; border-radius: 4px;">
                                 <option value="3">3 Rounds</option>
                                 <option value="5">5 Rounds</option>
                             </select>
                         </div>
                     </div>
-                </div>
 
-                <!-- Save Match Button -->
-                <div class="save-section">
-                    <button @click="saveMatch()" class="btn btn-success btn-lg">
-                        Save Match to Card
-                    </button>
-                </div>
-            </div>
-
-            <!-- Fighter Selection Modal -->
-            <div x-show="showModal" x-cloak @click.self="showModal = false" class="modal-overlay">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2>Select Fighter</h2>
-                        <button @click="showModal = false" class="close-btn">&times;</button>
+                    <!-- Save Match Button -->
+                    <div class="save-section">
+                        <button @click="saveMatch()" class="btn btn-success btn-lg">
+                            Save Match to Card
+                        </button>
                     </div>
-                    <div class="modal-body">
-                        <input type="text" x-model="modalSearch" placeholder="Search fighters..." class="search-input"
-                            @input="searchFighters()">
-                        <div class="modal-fighters-list">
-                            <template x-for="fighter in modalFighters" :key="fighter.id">
-                                <div @click="selectFighter(fighter)" class="modal-fighter-item">
-                                    <span x-text="fighter.name"></span>
-                                    <span class="fighter-record" x-text="fighter.wins + '-' + fighter.losses"></span>
-                                </div>
-                            </template>
+                </div>
+
+                <!-- Fighter Selection Modal -->
+                <div x-show="showModal" x-cloak @click.self="showModal = false" class="modal-overlay">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>Select Fighter</h2>
+                            <button @click="showModal = false" class="close-btn">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="text" x-model="modalSearch" placeholder="Search fighters..."
+                                class="search-input" @input="searchFighters()">
+                            <div class="modal-fighters-list">
+                                <template x-for="fighter in modalFighters" :key="fighter.id">
+                                    <div @click="selectFighter(fighter)" class="modal-fighter-item">
+                                        <span x-text="fighter.name"></span>
+                                        <span class="fighter-record"
+                                            x-text="fighter.wins + '-' + fighter.losses"></span>
+                                    </div>
+                                </template>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <script>
-            function matchmaker() {
-                return {
-                    fighter1: null,
-                    fighter2: null,
-                    prediction: null,
-                    selectedCardId: '',
-                    showModal: false,
-                    selectingFor: 1,
-                    modalFighters: [],
-                    modalSearch: '',
-                    isMainEvent: false,
-                    isCoMainEvent: false,
-                    isTitleFight: false,
-                    titleType: 'Undisputed',
-                    cardPart: 'Main Card',
-                    rounds: 3,
+            <script>
+                function matchmaker() {
+                    return {
+                        fighter1: null,
+                        fighter2: null,
+                        prediction: null,
+                        selectedCardId: '',
+                        showModal: false,
+                        selectingFor: 1,
+                        modalFighters: [],
+                        modalSearch: '',
+                        isMainEvent: false,
+                        isCoMainEvent: false,
+                        isTitleFight: false,
+                        titleType: 'Undisputed',
+                        cardPart: 'Main Card',
+                        weightClass: '',
+                        rounds: 3,
 
-                    // Helper functions
-                    getHeight(fighter) {
-                        if (!fighter || !fighter.height_feet) return 'N/A';
-                        const inches = fighter.height_inches || 0;
-                        return fighter.height_feet + "'" + inches + '"';
-                    },
+                        // Helper functions
+                        getHeight(fighter) {
+                            if (!fighter || !fighter.height_feet) return 'N/A';
+                            const inches = fighter.height_inches || 0;
+                            return fighter.height_feet + "'" + inches + '"';
+                        },
 
-                    getWeight(fighter) {
-                        if (!fighter || !fighter.weight_lbs) return 'N/A';
-                        return fighter.weight_lbs + ' lbs';
-                    },
+                        getWeight(fighter) {
+                            if (!fighter || !fighter.weight_lbs) return 'N/A';
+                            return fighter.weight_lbs + ' lbs';
+                        },
 
-                    getReach(fighter) {
-                        if (!fighter || !fighter.reach_cm) return 'N/A';
-                        const inches = (fighter.reach_cm / 2.54).toFixed(1);
-                        return inches + '"';
-                    },
+                        getReach(fighter) {
+                            if (!fighter || !fighter.reach_cm) return 'N/A';
+                            const inches = (fighter.reach_cm / 2.54).toFixed(1);
+                            return inches + '"';
+                        },
 
-                    getRecord(fighter) {
-                        if (!fighter) return '0-0-0';
-                        return fighter.wins + '-' + fighter.losses + '-' + fighter.draws;
-                    },
+                        getRecord(fighter) {
+                            if (!fighter) return '0-0-0';
+                            return fighter.wins + '-' + fighter.losses + '-' + fighter.draws;
+                        },
 
-                    openFighterModal(fighterNumber) {
-                        this.selectingFor = fighterNumber;
-                        this.showModal = true;
-                        this.searchFighters();
-                    },
+                        openFighterModal(fighterNumber) {
+                            this.selectingFor = fighterNumber;
+                            this.showModal = true;
+                            this.searchFighters();
+                        },
 
-                    async searchFighters() {
-                        const response = await fetch('/api/fighters?search=' + this.modalSearch);
-                        this.modalFighters = await response.json();
-                    },
+                        async searchFighters() {
+                            const response = await fetch('/api/fighters?search=' + this.modalSearch);
+                            this.modalFighters = await response.json();
+                        },
 
-                    async selectFighter(fighter) {
-                        const response = await fetch('/api/fighter/' + fighter.id);
-                        const fullFighter = await response.json();
+                        async selectFighter(fighter) {
+                            const response = await fetch('/api/fighter/' + fighter.id);
+                            const fullFighter = await response.json();
 
-                        if (this.selectingFor === 1) {
-                            this.fighter1 = fullFighter;
-                        } else {
-                            this.fighter2 = fullFighter;
-                        }
-                        this.showModal = false;
-                    },
+                            if (this.selectingFor === 1) {
+                                this.fighter1 = fullFighter;
+                            } else {
+                                this.fighter2 = fullFighter;
+                            }
 
-                    getFlagEmoji(nationality) {
-                        const flags = {
-                            'USA': '🇺🇸',
-                            'France': '🇫🇷',
-                            'Brazil': '🇧🇷',
-                            'Russia': '🇷🇺',
-                            'Ireland': '🇮🇪',
-                        };
-                        return flags[nationality] || '🏳️';
-                    },
+                            // Auto-populate weight class if both fighters selected
+                            if (this.fighter1 && this.fighter2) {
+                                this.weightClass = this.fighter1.weight_class;
+                            } else if (fullFighter.weight_class) {
+                                this.weightClass = fullFighter.weight_class;
+                            }
 
-                    async saveMatch() {
-                        if (!this.fighter1 || !this.fighter2) {
-                            alert('Please select both fighters');
-                            return;
-                        }
+                            this.showModal = false;
+                        },
 
-                        if (!this.selectedCardId) {
-                            alert('Please select a card to assign this match to');
-                            return;
-                        }
+                        getFlagEmoji(nationality) {
+                            const flags = {
+                                'USA': '🇺🇸',
+                                'France': '🇫🇷',
+                                'Brazil': '🇧🇷',
+                                'Russia': '🇷🇺',
+                                'Ireland': '🇮🇪',
+                            };
+                            return flags[nationality] || '🏳️';
+                        },
 
-                        const matchData = {
-                            card_id: parseInt(this.selectedCardId),
-                            fighter1_id: this.fighter1.id,
-                            fighter2_id: this.fighter2.id,
-                            prediction: this.prediction,
-                            rounds: parseInt(this.rounds),
-                            is_title_fight: this.isTitleFight,
-                            is_main_event: this.isMainEvent,
-                            is_co_main_event: this.isCoMainEvent,
-                            title_type: this.isTitleFight ? this.titleType : null,
-                            card_part: this.cardPart
-                        };
+                        async saveMatch() {
+                            if (!this.fighter1 || !this.fighter2) {
+                                alert('Please select both fighters');
+                                return;
+                            }
 
-                        const response = await fetch('/api/matches', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(matchData)
-                        });
+                            if (!this.selectedCardId) {
+                                alert('Please select a card to assign this match to');
+                                return;
+                            }
 
-                        if (response.ok) {
-                            alert('Match saved successfully!');
-                            window.location.href = '/card/' + this.selectedCardId;
-                        } else {
-                            alert('Failed to save match');
+                            const matchData = {
+                                card_id: parseInt(this.selectedCardId),
+                                fighter1_id: this.fighter1.id,
+                                fighter2_id: this.fighter2.id,
+                                prediction: this.prediction,
+                                rounds: parseInt(this.rounds),
+                                weight_class: this.weightClass,
+                                is_title_fight: this.isTitleFight,
+                                is_main_event: this.isMainEvent,
+                                is_co_main_event: this.isCoMainEvent,
+                                title_type: this.isTitleFight ? this.titleType : null,
+                                card_part: this.cardPart
+                            };
+
+                            const response = await fetch('/api/matches', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(matchData)
+                            });
+
+                            if (response.ok) {
+                                alert('Match saved successfully!');
+                                window.location.href = '/card/' + this.selectedCardId;
+                            } else {
+                                alert('Failed to save match');
+                            }
                         }
                     }
                 }
-            }
-        </script>
+            </script>
     </main>
 
     <footer class="footer">

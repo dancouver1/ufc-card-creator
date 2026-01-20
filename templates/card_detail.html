@@ -59,8 +59,9 @@
                             style="object-fit: cover; object-position: top;">
 
                         <div class="match-info-center">
-                            <div class="match-bout-info">
-                                {{if .WeightClass}}{{.WeightClass}}{{end}} {{if .IsTitleFight}}TITLE {{end}}BOUT
+                            <div class="match-bout-info" style="text-transform: uppercase;">
+                                {{if .WeightClass}}{{.WeightClass}}{{else}}CATCHWEIGHT{{end}} {{if .IsTitleFight}}TITLE
+                                {{end}}BOUT
                             </div>
                             <div class="match-fighter-names">
                                 {{.Fighter1.Name}} <span class="vs-text">vs</span> {{.Fighter2.Name}}
@@ -68,12 +69,13 @@
                         </div>
                     </div>
 
-                    <div class="match-details-bar">
-                        {{.Rounds}} Rounds • {{if .IsTitleFight}}{{.TitleType}} {{end}}Match
+                    <div class="match-details-bar" style="text-transform: uppercase;">
+                        {{.Rounds}} Rounds • {{if .WeightClass}}{{.WeightClass}} {{end}}{{if
+                        .IsTitleFight}}{{.TitleType}} {{end}}Match
                     </div>
 
                     <div class="match-actions-overlay">
-                        <button class="btn btn-sm btn-danger" onclick="deleteMatch({{.ID}})">Delete</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteMatch('{{.ID}}')">Delete</button>
                     </div>
                 </div>
                 {{end}}
@@ -93,8 +95,9 @@
                             style="object-fit: cover; object-position: top;">
 
                         <div class="match-info-center">
-                            <div class="match-bout-info">
-                                {{with .WeightClass}}{{.}}{{else}}Catchweight{{end}} {{if .IsTitleFight}}TITLE {{end}}BOUT
+                            <div class="match-bout-info" style="text-transform: uppercase;">
+                                {{if .WeightClass}}{{.WeightClass}}{{else}}CATCHWEIGHT{{end}} {{if .IsTitleFight}}TITLE
+                                {{end}}BOUT
                             </div>
                             <div class="match-fighter-names" style="font-size: 1.8rem;">
                                 {{.Fighter1.Name}} <span class="vs-text">vs</span> {{.Fighter2.Name}}
@@ -102,12 +105,13 @@
                         </div>
                     </div>
 
-                    <div class="match-details-bar">
-                        {{.Rounds}} Rounds • {{if .IsTitleFight}}{{.TitleType}} {{end}}Match
+                    <div class="match-details-bar" style="text-transform: uppercase;">
+                        {{.Rounds}} Rounds • {{if .WeightClass}}{{.WeightClass}} {{end}}{{if
+                        .IsTitleFight}}{{.TitleType}} {{end}}Match
                     </div>
 
                     <div class="match-actions-overlay">
-                        <button class="btn btn-sm btn-danger" onclick="deleteMatch({{.ID}})">Delete</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteMatch('{{.ID}}')">Delete</button>
                     </div>
                 </div>
                 {{end}}
