@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -29,6 +30,18 @@ type Fighter struct {
     
     // NEW: Last 5 fights (populated when needed)
     Last5Fights     []FightHistory `json:"last_5_fights,omitempty"`
+}
+
+// SetDefaultImageURL sets a default image URL based on the fighter's name
+// if one is not already provided.
+func (f *Fighter) SetDefaultImageURL() {
+	if f.FighterImageURL == nil || *f.FighterImageURL == "" {
+		// Standardize name: lowercase, replace spaces with underscores
+		normalized := strings.ToLower(f.Name)
+		normalized = strings.ReplaceAll(normalized, " ", "_")
+		url := "/static/images/fighters/" + normalized + ".webp"
+		f.FighterImageURL = &url
+	}
 }
 
 // GetRecord returns the fighter's record as a string (e.g., "20-5-0")

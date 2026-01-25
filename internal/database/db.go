@@ -89,6 +89,7 @@ func (db *DB) GetAllFighters(ctx context.Context) ([]models.Fighter, error) {
 		if err != nil {
 			return nil, fmt.Errorf("scan failed: %w", err)
 		}
+		f.SetDefaultImageURL()
 		fighters = append(fighters, f)
 	}
 
@@ -123,6 +124,7 @@ func (db *DB) GetFighterByID(ctx context.Context, id int) (*models.Fighter, erro
 		return nil, fmt.Errorf("query failed: %w", err)
 	}
 
+	f.SetDefaultImageURL()
 	return &f, nil
 }
 
@@ -157,6 +159,7 @@ func (db *DB) GetFightersByWeightClass(ctx context.Context, weightClass string) 
 		if err != nil {
 			return nil, fmt.Errorf("scan failed: %w", err)
 		}
+		f.SetDefaultImageURL()
 		fighters = append(fighters, f)
 	}
 
@@ -197,6 +200,7 @@ func (db *DB) SearchFighters(ctx context.Context, searchTerm string) ([]models.F
 		if err != nil {
 			return nil, fmt.Errorf("scan failed: %w", err)
 		}
+		f.SetDefaultImageURL()
 		fighters = append(fighters, f)
 	}
 
@@ -478,6 +482,9 @@ func (db *DB) GetMatchesByCardID(ctx context.Context, cardID int) ([]models.Matc
 		if err != nil {
 			return nil, fmt.Errorf("scan failed: %w", err)
 		}
+
+		f1.SetDefaultImageURL()
+		f2.SetDefaultImageURL()
 
 		m.Fighter1 = &f1
 		m.Fighter2 = &f2
