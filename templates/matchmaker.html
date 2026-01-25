@@ -239,25 +239,25 @@
                     </div>
                 </div>
 
-                <!-- Fighter Selection Modal -->
-                <div x-show="showModal" x-cloak @click.self="showModal = false" class="modal-overlay">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h2>Select Fighter</h2>
-                            <button @click="showModal = false" class="close-btn">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            <input type="text" x-model="modalSearch" placeholder="Search fighters..."
-                                class="search-input" @input="searchFighters()">
-                            <div class="modal-fighters-list">
-                                <template x-for="fighter in modalFighters" :key="fighter.id">
-                                    <div @click="selectFighter(fighter)" class="modal-fighter-item">
-                                        <span x-text="fighter.name"></span>
-                                        <span class="fighter-record"
-                                            x-text="fighter.wins + '-' + fighter.losses"></span>
-                                    </div>
-                                </template>
-                            </div>
+            </div>
+
+            <!-- Fighter Selection Modal -->
+            <div x-show="showModal" x-cloak @click.self="showModal = false" class="modal-overlay">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Select Fighter</h2>
+                        <button @click="showModal = false" class="close-btn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" x-model="modalSearch" placeholder="Search fighters..." class="search-input"
+                            @input="searchFighters()">
+                        <div class="modal-fighters-list">
+                            <template x-for="fighter in modalFighters" :key="fighter.id">
+                                <div @click="selectFighter(fighter)" class="modal-fighter-item">
+                                    <span x-text="fighter.name"></span>
+                                    <span class="fighter-record" x-text="fighter.wins + '-' + fighter.losses"></span>
+                                </div>
+                            </template>
                         </div>
                     </div>
                 </div>
