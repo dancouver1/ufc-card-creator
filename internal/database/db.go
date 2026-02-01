@@ -412,6 +412,29 @@ func (db *DB) DeleteCard(ctx context.Context, cardID int) error {
 
 // CreateMatch inserts a new match into the database
 func (db *DB) CreateMatch(ctx context.Context, match *models.Match) error {
+	// Start a transaction to ensure atomicity
+	tx, err := db.Pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to start transaction: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	// If this is a main event, unset any existing main event on this card
+	if match.IsMainEvent {
+		_, err = tx.Exec(ctx, "UPDATE matches SET is_main_event = false WHERE card_id = $1", match.CardID)
+		if err != nil {
+			return fmt.Errorf("failed to unset existing main event: %w", err)
+		}
+	}
+
+	// If this is a co-main event, unset any existing co-main event on this card
+	if match.IsCoMainEvent {
+		_, err = tx.Exec(ctx, "UPDATE matches SET is_co_main_event = false WHERE card_id = $1", match.CardID)
+		if err != nil {
+			return fmt.Errorf("failed to unset existing co-main event: %w", err)
+		}
+	}
+
 	query := `
         INSERT INTO matches (
             card_id, fighter1_id, fighter2_id, fight_order,
@@ -421,7 +444,7 @@ func (db *DB) CreateMatch(ctx context.Context, match *models.Match) error {
         RETURNING id, created_at, updated_at
     `
 
-	err := db.Pool.QueryRow(
+	err = tx.QueryRow(
 		ctx, query,
 		match.CardID, match.Fighter1ID, match.Fighter2ID, match.FightOrder,
 		match.WeightClass, match.IsTitleFight, match.Rounds, match.Prediction,
@@ -432,7 +455,7 @@ func (db *DB) CreateMatch(ctx context.Context, match *models.Match) error {
 		return fmt.Errorf("insert failed: %w", err)
 	}
 
-	return nil
+	return tx.Commit(ctx)
 }
 
 // GetMatchesByCardID retrieves all matches for a specific card with fighter details
@@ -453,7 +476,10 @@ func (db *DB) GetMatchesByCardID(ctx context.Context, cardID int) ([]models.Matc
         JOIN fighters f1 ON m.fighter1_id = f1.id
         JOIN fighters f2 ON m.fighter2_id = f2.id
         WHERE m.card_id = $1
-        ORDER BY m.is_main_event DESC, m.is_co_main_event DESC, m.fight_order DESC NULLS LAST
+        ORDER BY 
+            m.is_main_event DESC,
+            m.is_co_main_event DESC,
+            m.id DESC
     `
 
 	rows, err := db.Pool.Query(ctx, query, cardID)
