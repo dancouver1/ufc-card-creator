@@ -453,7 +453,7 @@ func (db *DB) GetMatchesByCardID(ctx context.Context, cardID int) ([]models.Matc
         JOIN fighters f1 ON m.fighter1_id = f1.id
         JOIN fighters f2 ON m.fighter2_id = f2.id
         WHERE m.card_id = $1
-        ORDER BY m.fight_order DESC NULLS LAST
+        ORDER BY m.is_main_event DESC, m.is_co_main_event DESC, m.fight_order DESC NULLS LAST
     `
 
 	rows, err := db.Pool.Query(ctx, query, cardID)
