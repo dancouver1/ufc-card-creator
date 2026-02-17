@@ -168,20 +168,37 @@ func (db *DB) GetFightersByWeightClass(ctx context.Context, weightClass string) 
 
 // SearchFighters searches for fighters by name (fuzzy search)
 func (db *DB) SearchFighters(ctx context.Context, searchTerm string) ([]models.Fighter, error) {
+	return db.SearchFightersWithFilters(ctx, searchTerm, "")
+}
+
+// SearchFightersWithFilters searches for fighters by name and/or weight class
+func (db *DB) SearchFightersWithFilters(ctx context.Context, searchTerm string, weightClass string) ([]models.Fighter, error) {
 	query := `
         SELECT id, name, nickname, height_feet, height_inches, weight_lbs,
                reach_cm, leg_reach_cm, weight_class, stance, wins, losses, draws,
                date_of_birth, nationality, fighter_image_url, is_active,
                last_fight_date, created_at, updated_at
         FROM fighters
-        WHERE (name ILIKE $1 OR nickname ILIKE $1) AND is_active = true
-        ORDER BY name ASC
-        LIMIT 50
+        WHERE is_active = true
     `
+	params := []interface{}{}
+	paramCount := 1
 
-	searchPattern := "%" + searchTerm + "%"
+	if searchTerm != "" {
+		query += fmt.Sprintf(" AND (name ILIKE $%d OR nickname ILIKE $%d)", paramCount, paramCount)
+		params = append(params, "%"+searchTerm+"%")
+		paramCount++
+	}
 
-	rows, err := db.Pool.Query(ctx, query, searchPattern)
+	if weightClass != "" && weightClass != "all" {
+		query += fmt.Sprintf(" AND weight_class = $%d", paramCount)
+		params = append(params, weightClass)
+		paramCount++
+	}
+
+	query += " ORDER BY name ASC LIMIT 50"
+
+	rows, err := db.Pool.Query(ctx, query, params...)
 	if err != nil {
 		return nil, fmt.Errorf("query failed: %w", err)
 	}

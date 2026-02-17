@@ -37,12 +37,47 @@
                 <h1>UFC Fighters Roster</h1>
             </div>
 
+            <div class="filters-container">
+                <form action="/fighters" method="GET" class="roster-filters">
+                    <input type="text" name="search" placeholder="Search fighters..." class="search-input"
+                        value="{{.SearchTerm}}">
+                    <select name="weight_class" class="weight-class-select" onchange="this.form.submit()">
+                        <option value="all">All Weight Classes</option>
+                        <option value="Flyweight" {{if eq .WeightClass "Flyweight" }}selected{{end}}>Flyweight</option>
+                        <option value="Bantamweight" {{if eq .WeightClass "Bantamweight" }}selected{{end}}>Bantamweight
+                        </option>
+                        <option value="Featherweight" {{if eq .WeightClass "Featherweight" }}selected{{end}}>
+                            Featherweight</option>
+                        <option value="Lightweight" {{if eq .WeightClass "Lightweight" }}selected{{end}}>Lightweight
+                        </option>
+                        <option value="Welterweight" {{if eq .WeightClass "Welterweight" }}selected{{end}}>Welterweight
+                        </option>
+                        <option value="Middleweight" {{if eq .WeightClass "Middleweight" }}selected{{end}}>Middleweight
+                        </option>
+                        <option value="Light Heavyweight" {{if eq .WeightClass "Light Heavyweight" }}selected{{end}}>
+                            Light Heavyweight</option>
+                        <option value="Heavyweight" {{if eq .WeightClass "Heavyweight" }}selected{{end}}>Heavyweight
+                        </option>
+                        <option value="Women's Strawweight" {{if eq .WeightClass "Women's Strawweight"
+                            }}selected{{end}}>Women's Strawweight</option>
+                        <option value="Women's Flyweight" {{if eq .WeightClass "Women's Flyweight" }}selected{{end}}>
+                            Women's Flyweight</option>
+                        <option value="Women's Bantamweight" {{if eq .WeightClass "Women's Bantamweight"
+                            }}selected{{end}}>Women's Bantamweight</option>
+                        <option value="Women's Featherweight" {{if eq .WeightClass "Women's Featherweight"
+                            }}selected{{end}}>Women's Featherweight</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+            </div>
+
             <div class="fighters-grid">
                 {{range .Fighters}}
                 <div class="fighter-card">
                     <div class="fighter-image">
                         <img src="{{if .FighterImageURL}}{{.FighterImageURL}}{{else}}/static/images/placeholder.png{{end}}"
-                            alt="{{.Name}}" style="width: 100%; height: 200px; object-fit: cover; object-position: top;">
+                            alt="{{.Name}}"
+                            style="width: 100%; height: 200px; object-fit: cover; object-position: top;">
                     </div>
                     <div class="fighter-info">
                         <h3>{{.Name}}</h3>
@@ -54,7 +89,10 @@
                     </div>
                 </div>
                 {{else}}
-                <p class="no-results">No fighters found</p>
+                <div class="no-results"
+                    style="grid-column: 1/-1; text-align: center; padding: 3rem; background: #1a1a1a; border-radius: 8px;">
+                    <p style="font-size: 1.2rem; color: #666;">No fighters found matching your criteria</p>
+                </div>
                 {{end}}
             </div>
         </div>

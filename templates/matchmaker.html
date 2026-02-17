@@ -249,8 +249,25 @@
                         <button @click="showModal = false" class="close-btn">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <input type="text" x-model="modalSearch" placeholder="Search fighters..." class="search-input"
-                            @input="searchFighters()">
+                        <div class="modal-filters">
+                            <input type="text" x-model="modalSearch" placeholder="Search fighters..."
+                                class="search-input" @input="searchFighters()">
+                            <select x-model="modalWeightClass" class="weight-class-select" @change="searchFighters()">
+                                <option value="all">All Weight Classes</option>
+                                <option value="Flyweight">Flyweight</option>
+                                <option value="Bantamweight">Bantamweight</option>
+                                <option value="Featherweight">Featherweight</option>
+                                <option value="Lightweight">Lightweight</option>
+                                <option value="Welterweight">Welterweight</option>
+                                <option value="Middleweight">Middleweight</option>
+                                <option value="Light Heavyweight">Light Heavyweight</option>
+                                <option value="Heavyweight">Heavyweight</option>
+                                <option value="Women's Strawweight">Women's Strawweight</option>
+                                <option value="Women's Flyweight">Women's Flyweight</option>
+                                <option value="Women's Bantamweight">Women's Bantamweight</option>
+                                <option value="Women's Featherweight">Women's Featherweight</option>
+                            </select>
+                        </div>
                         <div class="modal-fighters-list">
                             <template x-for="fighter in modalFighters" :key="fighter.id">
                                 <div @click="selectFighter(fighter)" class="modal-fighter-item">
@@ -274,6 +291,7 @@
                         selectingFor: 1,
                         modalFighters: [],
                         modalSearch: '',
+                        modalWeightClass: 'all',
                         isMainEvent: false,
                         isCoMainEvent: false,
                         isTitleFight: false,
@@ -312,7 +330,7 @@
                         },
 
                         async searchFighters() {
-                            const response = await fetch('/api/fighters?search=' + this.modalSearch);
+                            const response = await fetch(`/api/fighters?search=${this.modalSearch}&weight_class=${this.modalWeightClass}`);
                             this.modalFighters = await response.json();
                         },
 

@@ -691,6 +691,26 @@ h3,
     overflow-y: auto;
 }
 
+.modal-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.weight-class-select {
+    padding: 12px;
+    background-color: #2a2a2a;
+    border: 2px solid #444;
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+}
+
+.weight-class-select:focus {
+    outline: none;
+    border-color: #d20a0a;
+}
+
 .modal-fighters-list {
     margin-top: 1rem;
     display: flex;
@@ -774,10 +794,26 @@ h3,
 }
 
 /* Filters */
-.filters {
+.filters-container {
+    margin-top: 2rem;
+    background: #1a1a1a;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.roster-filters {
     display: flex;
     gap: 1rem;
-    margin-top: 2rem;
+    align-items: center;
+}
+
+.roster-filters .search-input {
+    flex: 2;
+}
+
+.roster-filters .weight-class-select {
+    flex: 1;
 }
 
 .search-input,

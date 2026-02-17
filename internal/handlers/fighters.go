@@ -14,14 +14,19 @@ import (
 func (h *Handler) HandleFightersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	fighters, err := h.DB.GetAllFighters(ctx)
+	searchTerm := r.URL.Query().Get("search")
+	weightClass := r.URL.Query().Get("weight_class")
+
+	fighters, err := h.DB.SearchFightersWithFilters(ctx, searchTerm, weightClass)
 	if err != nil {
 		http.Error(w, "Failed to fetch fighters", http.StatusInternalServerError)
 		return
 	}
 
 	data := map[string]interface{}{
-		"Fighters": fighters,
+		"Fighters":    fighters,
+		"SearchTerm":  searchTerm,
+		"WeightClass": weightClass,
 	}
 
 	err = h.Templates.ExecuteTemplate(w, "fighters.html", data)
@@ -38,16 +43,7 @@ func (h *Handler) HandleGetFighters(w http.ResponseWriter, r *http.Request) {
 	searchTerm := r.URL.Query().Get("search")
 	weightClass := r.URL.Query().Get("weight_class")
 
-	var fighters []models.Fighter
-	var err error
-
-	if searchTerm != "" {
-		fighters, err = h.DB.SearchFighters(ctx, searchTerm)
-	} else if weightClass != "" && weightClass != "all" {
-		fighters, err = h.DB.GetFightersByWeightClass(ctx, weightClass)
-	} else {
-		fighters, err = h.DB.GetAllFighters(ctx)
-	}
+	fighters, err := h.DB.SearchFightersWithFilters(ctx, searchTerm, weightClass)
 
 	if err != nil {
 		http.Error(w, "Failed to fetch fighters", http.StatusInternalServerError)
@@ -92,8 +88,9 @@ func (h *Handler) HandleSearchFighters(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	searchTerm := r.URL.Query().Get("search")
+	weightClass := r.URL.Query().Get("weight_class")
 
-	fighters, err := h.DB.SearchFighters(ctx, searchTerm)
+	fighters, err := h.DB.SearchFightersWithFilters(ctx, searchTerm, weightClass)
 	if err != nil {
 		http.Error(w, "Search failed", http.StatusInternalServerError)
 		return
