@@ -12,6 +12,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
+	"github.com/go-chi/httprate"
 
 	"github.com/dancouver1/ufc-card-creator/internal/database"
 	"github.com/dancouver1/ufc-card-creator/internal/handlers"
@@ -46,6 +47,18 @@ func main() {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Timeout(60 * time.Second))
+
+	r.Use(httprate.LimitByIP(100, time.Minute))
+
+	// Security Headers Middleware
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+			w.Header().Set("X-Content-Type-Options", "nosniff")
+			w.Header().Set("X-Frame-Options", "DENY")
+			next.ServeHTTP(w, r)
+		})
+	})
 
 	// Page Routes
 	r.Get("/", h.HandleHome)
