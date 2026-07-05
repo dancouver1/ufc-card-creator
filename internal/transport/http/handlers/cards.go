@@ -37,6 +37,17 @@ func (h *Handler) HandleCardsPage(w http.ResponseWriter, r *http.Request) {
 }
 
 // HandleCreateCard creates a new card
+//
+// @Summary      Create a card
+// @Description  Creates a new fight card
+// @Tags         cards
+// @Accept       json
+// @Produce      json
+// @Param        card  body      models.Card  true  "Card to create (card_name required)"
+// @Success      201   {object}  models.Card
+// @Failure      400   {string}  string  "Invalid request body / card name is required"
+// @Failure      500   {string}  string  "Failed to create card"
+// @Router       /cards [post]
 func (h *Handler) HandleCreateCard(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
@@ -62,6 +73,16 @@ func (h *Handler) HandleCreateCard(w http.ResponseWriter, r *http.Request) {
 }
 
 // HandleGetCardByID returns a card with all its matches
+//
+// @Summary      Get card by ID
+// @Description  Returns a card along with all its matches and fighter details
+// @Tags         cards
+// @Produce      json
+// @Param        id   path      int  true  "Card ID"
+// @Success      200  {object}  models.Card
+// @Failure      400  {string}  string  "Invalid card ID"
+// @Failure      404  {string}  string  "Card not found"
+// @Router       /cards/{id} [get]
 func (h *Handler) HandleGetCardByID(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
@@ -83,6 +104,15 @@ func (h *Handler) HandleGetCardByID(w http.ResponseWriter, r *http.Request) {
 }
 
 // HandleDeleteCard deletes a card
+//
+// @Summary      Delete a card
+// @Description  Deletes a card and all of its matches
+// @Tags         cards
+// @Param        id   path  int  true  "Card ID"
+// @Success      200  {string}  string  "OK"
+// @Failure      400  {string}  string  "Invalid card ID"
+// @Failure      500  {string}  string  "Failed to delete card"
+// @Router       /cards/{id} [delete]
 func (h *Handler) HandleDeleteCard(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	idStr := chi.URLParam(r, "id")

@@ -1,0 +1,402 @@
+basePath: /api
+definitions:
+  github_com_dancouver1_ufc-card-creator_internal_models.Card:
+    properties:
+      card_name:
+        type: string
+      card_number:
+        type: string
+      created_at:
+        type: string
+      event_date:
+        type: string
+      id:
+        type: integer
+      location:
+        type: string
+      matches:
+        description: For when we fetch card with matches
+        items:
+          $ref: '#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Match'
+        type: array
+      updated_at:
+        type: string
+    type: object
+  github_com_dancouver1_ufc-card-creator_internal_models.FightHistory:
+    properties:
+      created_at:
+        type: string
+      event_name:
+        type: string
+      fight_date:
+        type: string
+      fight_order:
+        type: integer
+      fighter_id:
+        type: integer
+      id:
+        type: integer
+      method:
+        type: string
+      opponent_name:
+        type: string
+      result:
+        description: '''win'', ''loss'', ''draw'', ''nc'''
+        type: string
+      round:
+        type: integer
+    type: object
+  github_com_dancouver1_ufc-card-creator_internal_models.Fighter:
+    properties:
+      created_at:
+        type: string
+      date_of_birth:
+        type: string
+      draws:
+        type: integer
+      fighter_image_url:
+        type: string
+      height_feet:
+        type: integer
+      height_inches:
+        type: integer
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      last_5_fights:
+        description: 'NEW: Last 5 fights (populated when needed)'
+        items:
+          $ref: '#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.FightHistory'
+        type: array
+      last_fight_date:
+        type: string
+      leg_reach_cm:
+        type: integer
+      losses:
+        type: integer
+      name:
+        type: string
+      nationality:
+        type: string
+      nickname:
+        type: string
+      reach_cm:
+        type: integer
+      stance:
+        type: string
+      updated_at:
+        type: string
+      weight_class:
+        type: string
+      weight_lbs:
+        type: integer
+      wins:
+        type: integer
+    type: object
+  github_com_dancouver1_ufc-card-creator_internal_models.Match:
+    properties:
+      card_id:
+        type: integer
+      card_part:
+        type: string
+      created_at:
+        type: string
+      fight_order:
+        type: integer
+      fighter1:
+        allOf:
+        - $ref: '#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Fighter'
+        description: Populated when fetching match details
+      fighter1_id:
+        type: integer
+      fighter2:
+        $ref: '#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Fighter'
+      fighter2_id:
+        type: integer
+      id:
+        type: integer
+      is_co_main_event:
+        type: boolean
+      is_main_event:
+        type: boolean
+      is_title_fight:
+        type: boolean
+      prediction:
+        description: 'NEW: Prediction field'
+        type: integer
+      rounds:
+        type: integer
+      title_type:
+        type: string
+      updated_at:
+        type: string
+      weight_class:
+        type: string
+    type: object
+  internal_transport_http_handlers.UpdateMatchPredictionRequest:
+    properties:
+      match_id:
+        type: integer
+      prediction:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: Backend API for browsing UFC fighters and building matchmaker cards.
+  title: UFC Card Creator API
+  version: "1.0"
+paths:
+  /cards:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new fight card
+      parameters:
+      - description: Card to create (card_name required)
+        in: body
+        name: card
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Card'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Card'
+        "400":
+          description: Invalid request body / card name is required
+          schema:
+            type: string
+        "500":
+          description: Failed to create card
+          schema:
+            type: string
+      summary: Create a card
+      tags:
+      - cards
+  /cards/{id}:
+    delete:
+      description: Deletes a card and all of its matches
+      parameters:
+      - description: Card ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Invalid card ID
+          schema:
+            type: string
+        "500":
+          description: Failed to delete card
+          schema:
+            type: string
+      summary: Delete a card
+      tags:
+      - cards
+    get:
+      description: Returns a card along with all its matches and fighter details
+      parameters:
+      - description: Card ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Card'
+        "400":
+          description: Invalid card ID
+          schema:
+            type: string
+        "404":
+          description: Card not found
+          schema:
+            type: string
+      summary: Get card by ID
+      tags:
+      - cards
+  /fighter/{id}:
+    get:
+      description: Returns a fighter's full profile including their last 5 fights
+      parameters:
+      - description: Fighter ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Fighter'
+        "400":
+          description: Invalid fighter ID
+          schema:
+            type: string
+        "404":
+          description: Fighter not found
+          schema:
+            type: string
+      summary: Get fighter by ID
+      tags:
+      - fighters
+  /fighters:
+    get:
+      description: Returns active fighters, optionally filtered by name search and/or
+        weight class
+      parameters:
+      - description: Search term matched against name/nickname
+        in: query
+        name: search
+        type: string
+      - description: Weight class filter
+        in: query
+        name: weight_class
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Fighter'
+            type: array
+        "500":
+          description: Failed to fetch fighters
+          schema:
+            type: string
+      summary: List fighters
+      tags:
+      - fighters
+  /fighters/search:
+    get:
+      description: Filters fighters by name search and/or weight class (used by the
+        HTMX search UI)
+      parameters:
+      - description: Search term matched against name/nickname
+        in: query
+        name: search
+        type: string
+      - description: Weight class filter
+        in: query
+        name: weight_class
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Fighter'
+            type: array
+        "500":
+          description: Search failed
+          schema:
+            type: string
+      summary: Search fighters
+      tags:
+      - fighters
+  /matches:
+    post:
+      consumes:
+      - application/json
+      description: Creates a matchup between two fighters on a card
+      parameters:
+      - description: Match to create (card_id, fighter1_id, fighter2_id required)
+        in: body
+        name: match
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Match'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Match'
+        "400":
+          description: Invalid request body / missing fighters or card
+          schema:
+            type: string
+        "500":
+          description: Failed to create match
+          schema:
+            type: string
+      summary: Create a match
+      tags:
+      - matches
+  /matches/{id}:
+    delete:
+      description: Deletes a single match
+      parameters:
+      - description: Match ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Invalid match ID
+          schema:
+            type: string
+        "500":
+          description: Failed to delete match
+          schema:
+            type: string
+      summary: Delete a match
+      tags:
+      - matches
+  /matches/prediction:
+    put:
+      consumes:
+      - application/json
+      description: Sets (or clears, if prediction is null) the predicted winner for
+        a match
+      parameters:
+      - description: Match ID and predicted winner's fighter ID
+        in: body
+        name: prediction
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_http_handlers.UpdateMatchPredictionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Prediction updated
+          schema:
+            type: string
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "500":
+          description: Failed to update prediction
+          schema:
+            type: string
+      summary: Update match prediction
+      tags:
+      - matches
+swagger: "2.0"

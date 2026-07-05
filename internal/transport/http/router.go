@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httprate"
+	httpSwagger "github.com/swaggo/http-swagger"
 
 	"github.com/dancouver1/ufc-card-creator/internal/transport/http/handlers"
 )
@@ -53,6 +54,9 @@ func NewRouter(h *handlers.Handler, healthCheck func(ctx context.Context) error)
 		r.Get("/cards/{id}", h.HandleGetCardByID)
 		r.Delete("/cards/{id}", h.HandleDeleteCard)
 	})
+
+	// Swagger UI + spec (served at /swagger/index.html)
+	r.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	// Health check endpoint
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
