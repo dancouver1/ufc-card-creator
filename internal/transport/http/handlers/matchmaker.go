@@ -10,7 +10,7 @@ func (h *Handler) HandleMatchmakerPage(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
 	// Get all cards for the dropdown
-	cards, err := h.DB.GetAllCards(ctx)
+	cards, err := h.Repo.Cards.GetAllCards(ctx)
 	if err != nil {
 		http.Error(w, "Failed to fetch cards", http.StatusInternalServerError)
 		return

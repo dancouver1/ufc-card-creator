@@ -6,23 +6,23 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/dancouver1/ufc-card-creator/internal/database"
+	"github.com/dancouver1/ufc-card-creator/internal/domain/repository"
 )
 
 type Handler struct {
-	DB        *database.DB
+	Repo      *repository.Repository
 	Templates *template.Template
 }
 
 // NewHandler creates a new handler instance
-func NewHandler(db *database.DB) *Handler {
+func NewHandler(repo *repository.Repository) *Handler {
 	// Parse all templates together so all block definitions are available
 	tmpl := template.Must(template.ParseGlob("templates/*.html"))
 
 	log.Printf("Templates parsed successfully")
 
 	return &Handler{
-		DB:        db,
+		Repo:      repo,
 		Templates: tmpl,
 	}
 }

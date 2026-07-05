@@ -20,7 +20,7 @@ func (h *Handler) HandleCardDetailPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	card, err := h.DB.GetCardByID(ctx, id)
+	card, err := h.Repo.Cards.GetCardByID(ctx, id)
 	if err != nil {
 		http.Error(w, "Card not found", http.StatusNotFound)
 		return

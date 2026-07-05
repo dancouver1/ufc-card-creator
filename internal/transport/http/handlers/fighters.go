@@ -17,7 +17,7 @@ func (h *Handler) HandleFightersPage(w http.ResponseWriter, r *http.Request) {
 	searchTerm := r.URL.Query().Get("search")
 	weightClass := r.URL.Query().Get("weight_class")
 
-	fighters, err := h.DB.SearchFightersWithFilters(ctx, searchTerm, weightClass)
+	fighters, err := h.Repo.Fighters.SearchFightersWithFilters(ctx, searchTerm, weightClass)
 	if err != nil {
 		http.Error(w, "Failed to fetch fighters", http.StatusInternalServerError)
 		return
@@ -43,7 +43,7 @@ func (h *Handler) HandleGetFighters(w http.ResponseWriter, r *http.Request) {
 	searchTerm := r.URL.Query().Get("search")
 	weightClass := r.URL.Query().Get("weight_class")
 
-	fighters, err := h.DB.SearchFightersWithFilters(ctx, searchTerm, weightClass)
+	fighters, err := h.Repo.Fighters.SearchFightersWithFilters(ctx, searchTerm, weightClass)
 
 	if err != nil {
 		http.Error(w, "Failed to fetch fighters", http.StatusInternalServerError)
@@ -65,14 +65,14 @@ func (h *Handler) HandleGetFighterByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fighter, err := h.DB.GetFighterByID(ctx, id)
+	fighter, err := h.Repo.Fighters.GetFighterByID(ctx, id)
 	if err != nil {
 		http.Error(w, "Fighter not found", http.StatusNotFound)
 		return
 	}
 
 	// Get last 5 fights
-	fights, err := h.DB.GetLast5Fights(ctx, id)
+	fights, err := h.Repo.FightHistory.GetLast5Fights(ctx, id)
 	if err != nil {
 		// Continue even if fights fetch fails
 		fights = []models.FightHistory{}
@@ -90,7 +90,7 @@ func (h *Handler) HandleSearchFighters(w http.ResponseWriter, r *http.Request) {
 	searchTerm := r.URL.Query().Get("search")
 	weightClass := r.URL.Query().Get("weight_class")
 
-	fighters, err := h.DB.SearchFightersWithFilters(ctx, searchTerm, weightClass)
+	fighters, err := h.Repo.Fighters.SearchFightersWithFilters(ctx, searchTerm, weightClass)
 	if err != nil {
 		http.Error(w, "Search failed", http.StatusInternalServerError)
 		return

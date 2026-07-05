@@ -38,7 +38,7 @@ func (h *Handler) HandleCreateMatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the match
-	if err := h.DB.CreateMatch(ctx, &match); err != nil {
+	if err := h.Repo.Matches.CreateMatch(ctx, &match); err != nil {
 		http.Error(w, "Failed to create match", http.StatusInternalServerError)
 		return
 	}
@@ -62,7 +62,7 @@ func (h *Handler) HandleUpdateMatchPrediction(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if err := h.DB.UpdateMatchPrediction(ctx, req.MatchID, req.Prediction); err != nil {
+	if err := h.Repo.Matches.UpdateMatchPrediction(ctx, req.MatchID, req.Prediction); err != nil {
 		http.Error(w, "Failed to update prediction", http.StatusInternalServerError)
 		return
 	}
@@ -81,7 +81,7 @@ func (h *Handler) HandleDeleteMatch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.DB.DeleteMatch(ctx, id); err != nil {
+	if err := h.Repo.Matches.DeleteMatch(ctx, id); err != nil {
 		http.Error(w, "Failed to delete match", http.StatusInternalServerError)
 		return
 	}

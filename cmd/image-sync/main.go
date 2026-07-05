@@ -8,20 +8,22 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/dancouver1/ufc-card-creator/internal/database"
-	"github.com/joho/godotenv"
+	"github.com/dancouver1/ufc-card-creator/internal/config"
+	"github.com/dancouver1/ufc-card-creator/internal/db"
+	"github.com/dancouver1/ufc-card-creator/internal/domain/repository"
 )
 
 func main() {
-	// Load .env
-	_ = godotenv.Load()
+	cfg := config.Load()
 
 	// Connect to DB
-	db, err := database.NewDB()
+	database, err := db.NewDB(cfg.DatabaseURL)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
-	defer db.Close()
+	defer database.Close()
+
+	repo := repository.New(database.Pool)
 
 	imageDir := "./static/images/fighters"
 	files, err := ioutil.ReadDir(imageDir)
@@ -53,15 +55,12 @@ func main() {
 
 		imgPath := fmt.Sprintf("/static/images/fighters/%s", filename)
 
-		// Update DB
-		query := "UPDATE fighters SET fighter_image_url = $1 WHERE name = $2"
-		res, err := db.Pool.Exec(ctx, query, imgPath, fighterName)
+		rowsAffected, err := repo.Fighters.UpdateFighterImage(ctx, fighterName, imgPath)
 		if err != nil {
 			log.Printf("Failed to update fighter %s: %v", fighterName, err)
 			continue
 		}
 
-		rowsAffected := res.RowsAffected()
 		if rowsAffected > 0 {
 			fmt.Printf("✅ Updated image for: %s\n", fighterName)
 			updatedCount++
