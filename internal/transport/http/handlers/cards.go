@@ -15,7 +15,7 @@ import (
 func (h *Handler) HandleCardsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	cards, err := h.DB.GetAllCards(ctx)
+	cards, err := h.Repo.Cards.GetAllCards(ctx)
 	if err != nil {
 		http.Error(w, "Failed to fetch cards", http.StatusInternalServerError)
 		return
@@ -51,7 +51,7 @@ func (h *Handler) HandleCreateCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.DB.CreateCard(ctx, &card); err != nil {
+	if err := h.Repo.Cards.CreateCard(ctx, &card); err != nil {
 		http.Error(w, "Failed to create card", http.StatusInternalServerError)
 		return
 	}
@@ -72,7 +72,7 @@ func (h *Handler) HandleGetCardByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	card, err := h.DB.GetCardByID(ctx, id)
+	card, err := h.Repo.Cards.GetCardByID(ctx, id)
 	if err != nil {
 		http.Error(w, "Card not found", http.StatusNotFound)
 		return
@@ -92,7 +92,7 @@ func (h *Handler) HandleDeleteCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.DB.DeleteCard(ctx, id); err != nil {
+	if err := h.Repo.Cards.DeleteCard(ctx, id); err != nil {
 		http.Error(w, "Failed to delete card", http.StatusInternalServerError)
 		return
 	}

@@ -11,9 +11,10 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/dancouver1/ufc-card-creator/internal/database"
+	"github.com/dancouver1/ufc-card-creator/internal/config"
+	"github.com/dancouver1/ufc-card-creator/internal/db"
+	"github.com/dancouver1/ufc-card-creator/internal/domain/repository"
 	"github.com/dancouver1/ufc-card-creator/internal/models"
-	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -24,15 +25,16 @@ func main() {
 		log.Fatal("Please provide a file path using -file")
 	}
 
-	// Load .env
-	_ = godotenv.Load()
+	cfg := config.Load()
 
 	// Connect to DB
-	db, err := database.NewDB()
+	database, err := db.NewDB(cfg.DatabaseURL)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
-	defer db.Close()
+	defer database.Close()
+
+	repo := repository.New(database.Pool)
 
 	file, err := os.Open(*filePath)
 	if err != nil {
@@ -69,7 +71,7 @@ func main() {
 			continue
 		}
 
-		err = db.UpsertFighter(ctx, fighter)
+		err = repo.Fighters.UpsertFighter(ctx, fighter)
 		if err != nil {
 			log.Printf("Failed to upsert fighter %s: %v", fighter.Name, err)
 			continue
