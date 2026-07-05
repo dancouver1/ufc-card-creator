@@ -14,8 +14,14 @@ import (
 	"github.com/dancouver1/ufc-card-creator/internal/domain/repository"
 	transporthttp "github.com/dancouver1/ufc-card-creator/internal/transport/http"
 	"github.com/dancouver1/ufc-card-creator/internal/transport/http/handlers"
+
+	_ "github.com/dancouver1/ufc-card-creator/docs"
 )
 
+// @title UFC Card Creator API
+// @version 1.0
+// @description Backend API for browsing UFC fighters and building matchmaker cards.
+// @BasePath /api
 func main() {
 	cfg := config.Load()
 

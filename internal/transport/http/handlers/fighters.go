@@ -37,6 +37,16 @@ func (h *Handler) HandleFightersPage(w http.ResponseWriter, r *http.Request) {
 }
 
 // HandleGetFighters returns fighters as JSON (for API calls)
+//
+// @Summary      List fighters
+// @Description  Returns active fighters, optionally filtered by name search and/or weight class
+// @Tags         fighters
+// @Produce      json
+// @Param        search       query     string  false  "Search term matched against name/nickname"
+// @Param        weight_class query     string  false  "Weight class filter"
+// @Success      200  {array}   models.Fighter
+// @Failure      500  {string}  string  "Failed to fetch fighters"
+// @Router       /fighters [get]
 func (h *Handler) HandleGetFighters(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
@@ -55,6 +65,16 @@ func (h *Handler) HandleGetFighters(w http.ResponseWriter, r *http.Request) {
 }
 
 // HandleGetFighterByID returns a single fighter with last 5 fights
+//
+// @Summary      Get fighter by ID
+// @Description  Returns a fighter's full profile including their last 5 fights
+// @Tags         fighters
+// @Produce      json
+// @Param        id   path      int  true  "Fighter ID"
+// @Success      200  {object}  models.Fighter
+// @Failure      400  {string}  string  "Invalid fighter ID"
+// @Failure      404  {string}  string  "Fighter not found"
+// @Router       /fighter/{id} [get]
 func (h *Handler) HandleGetFighterByID(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
@@ -84,6 +104,16 @@ func (h *Handler) HandleGetFighterByID(w http.ResponseWriter, r *http.Request) {
 }
 
 // HandleSearchFighters returns filtered HTML for HTMX
+//
+// @Summary      Search fighters
+// @Description  Filters fighters by name search and/or weight class (used by the HTMX search UI)
+// @Tags         fighters
+// @Produce      json
+// @Param        search       query     string  false  "Search term matched against name/nickname"
+// @Param        weight_class query     string  false  "Weight class filter"
+// @Success      200  {array}   models.Fighter
+// @Failure      500  {string}  string  "Search failed"
+// @Router       /fighters/search [get]
 func (h *Handler) HandleSearchFighters(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 

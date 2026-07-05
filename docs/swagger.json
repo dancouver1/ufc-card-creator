@@ -1,0 +1,608 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Backend API for browsing UFC fighters and building matchmaker cards.",
+        "title": "UFC Card Creator API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "basePath": "/api",
+    "paths": {
+        "/cards": {
+            "post": {
+                "description": "Creates a new fight card",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cards"
+                ],
+                "summary": "Create a card",
+                "parameters": [
+                    {
+                        "description": "Card to create (card_name required)",
+                        "name": "card",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Card"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Card"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body / card name is required",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create card",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/cards/{id}": {
+            "get": {
+                "description": "Returns a card along with all its matches and fighter details",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cards"
+                ],
+                "summary": "Get card by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Card ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Card"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid card ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Card not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes a card and all of its matches",
+                "tags": [
+                    "cards"
+                ],
+                "summary": "Delete a card",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Card ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid card ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to delete card",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/fighter/{id}": {
+            "get": {
+                "description": "Returns a fighter's full profile including their last 5 fights",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "fighters"
+                ],
+                "summary": "Get fighter by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Fighter ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Fighter"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid fighter ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Fighter not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/fighters": {
+            "get": {
+                "description": "Returns active fighters, optionally filtered by name search and/or weight class",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "fighters"
+                ],
+                "summary": "List fighters",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search term matched against name/nickname",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Weight class filter",
+                        "name": "weight_class",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Fighter"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch fighters",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/fighters/search": {
+            "get": {
+                "description": "Filters fighters by name search and/or weight class (used by the HTMX search UI)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "fighters"
+                ],
+                "summary": "Search fighters",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search term matched against name/nickname",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Weight class filter",
+                        "name": "weight_class",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Fighter"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Search failed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/matches": {
+            "post": {
+                "description": "Creates a matchup between two fighters on a card",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "matches"
+                ],
+                "summary": "Create a match",
+                "parameters": [
+                    {
+                        "description": "Match to create (card_id, fighter1_id, fighter2_id required)",
+                        "name": "match",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Match"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Match"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body / missing fighters or card",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create match",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/matches/prediction": {
+            "put": {
+                "description": "Sets (or clears, if prediction is null) the predicted winner for a match",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "matches"
+                ],
+                "summary": "Update match prediction",
+                "parameters": [
+                    {
+                        "description": "Match ID and predicted winner's fighter ID",
+                        "name": "prediction",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http_handlers.UpdateMatchPredictionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Prediction updated",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to update prediction",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/matches/{id}": {
+            "delete": {
+                "description": "Deletes a single match",
+                "tags": [
+                    "matches"
+                ],
+                "summary": "Delete a match",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Match ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid match ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to delete match",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "github_com_dancouver1_ufc-card-creator_internal_models.Card": {
+            "type": "object",
+            "properties": {
+                "card_name": {
+                    "type": "string"
+                },
+                "card_number": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "event_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "matches": {
+                    "description": "For when we fetch card with matches",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Match"
+                    }
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_dancouver1_ufc-card-creator_internal_models.FightHistory": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "event_name": {
+                    "type": "string"
+                },
+                "fight_date": {
+                    "type": "string"
+                },
+                "fight_order": {
+                    "type": "integer"
+                },
+                "fighter_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "method": {
+                    "type": "string"
+                },
+                "opponent_name": {
+                    "type": "string"
+                },
+                "result": {
+                    "description": "'win', 'loss', 'draw', 'nc'",
+                    "type": "string"
+                },
+                "round": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_dancouver1_ufc-card-creator_internal_models.Fighter": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "date_of_birth": {
+                    "type": "string"
+                },
+                "draws": {
+                    "type": "integer"
+                },
+                "fighter_image_url": {
+                    "type": "string"
+                },
+                "height_feet": {
+                    "type": "integer"
+                },
+                "height_inches": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "last_5_fights": {
+                    "description": "NEW: Last 5 fights (populated when needed)",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.FightHistory"
+                    }
+                },
+                "last_fight_date": {
+                    "type": "string"
+                },
+                "leg_reach_cm": {
+                    "type": "integer"
+                },
+                "losses": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nationality": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "reach_cm": {
+                    "type": "integer"
+                },
+                "stance": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "weight_class": {
+                    "type": "string"
+                },
+                "weight_lbs": {
+                    "type": "integer"
+                },
+                "wins": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_dancouver1_ufc-card-creator_internal_models.Match": {
+            "type": "object",
+            "properties": {
+                "card_id": {
+                    "type": "integer"
+                },
+                "card_part": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "fight_order": {
+                    "type": "integer"
+                },
+                "fighter1": {
+                    "description": "Populated when fetching match details",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Fighter"
+                        }
+                    ]
+                },
+                "fighter1_id": {
+                    "type": "integer"
+                },
+                "fighter2": {
+                    "$ref": "#/definitions/github_com_dancouver1_ufc-card-creator_internal_models.Fighter"
+                },
+                "fighter2_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_co_main_event": {
+                    "type": "boolean"
+                },
+                "is_main_event": {
+                    "type": "boolean"
+                },
+                "is_title_fight": {
+                    "type": "boolean"
+                },
+                "prediction": {
+                    "description": "NEW: Prediction field",
+                    "type": "integer"
+                },
+                "rounds": {
+                    "type": "integer"
+                },
+                "title_type": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "weight_class": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_transport_http_handlers.UpdateMatchPredictionRequest": {
+            "type": "object",
+            "properties": {
+                "match_id": {
+                    "type": "integer"
+                },
+                "prediction": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}
