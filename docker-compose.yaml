@@ -27,9 +27,9 @@ services:
     container_name: ufc_matchmaker_app
     environment:
       DATABASE_URL: postgres://${DB_USER:-ufcuser}:${DB_PASSWORD:-ufcpass}@db:5432/${DB_NAME:-ufc_matchmaker}?sslmode=disable
-      PORT: ${PORT:-8080}
+      PORT: ${PORT:-8090}
     ports:
-      - "8080:8080"
+      - "8090:8090"
     depends_on:
       db:
         condition: service_healthy
