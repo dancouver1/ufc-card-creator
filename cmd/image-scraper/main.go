@@ -24,6 +24,12 @@ const userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/5
 
 var ogImageRe = regexp.MustCompile(`<meta property="og:image" content="([^"]+)"`)
 
+// bioFullBodyRe matches UFC's "athlete_bio_full_body" image style: a
+// transparent-background, torso-up fighting-stance photo used on bio /
+// tale-of-the-tape pages. og:image is often a random editorial close-up
+// instead, so this is preferred when present.
+var bioFullBodyRe = regexp.MustCompile(`https://ufc\.com/images/styles/athlete_bio_full_body/s3/[^"?]+`)
+
 func main() {
 	names := flag.String("name", "", "Comma-separated fighter names to fetch (bypasses the DB fighter list)")
 	all := flag.Bool("all", false, "Fetch images for every fighter in the database")
@@ -94,7 +100,7 @@ func main() {
 			}
 		}
 
-		imageURL, err := fetchOGImage(client, slug)
+		imageURL, err := fetchAthleteImage(client, slug)
 		if err != nil {
 			log.Printf("fail  %-25s %v\n", fighter.Name, err)
 			failed++
@@ -169,11 +175,13 @@ func findExisting(dir, base string) string {
 	return ""
 }
 
-// fetchOGImage requests the athlete page for slug and extracts the
-// og:image meta tag, which holds the canonical hero photo UFC uses for
-// that fighter. Returns an error if the slug doesn't resolve to a real
-// athlete page (ufc.com redirects unknown slugs to its search page).
-func fetchOGImage(client *http.Client, slug string) (string, error) {
+// fetchAthleteImage requests the athlete page for slug and extracts a
+// fighting-stance photo: the "athlete_bio_full_body" image style if present
+// (transparent background, torso-up, used on tale-of-the-tape pages),
+// falling back to the og:image meta tag otherwise. Returns an error if the
+// slug doesn't resolve to a real athlete page (ufc.com redirects unknown
+// slugs to its search page).
+func fetchAthleteImage(client *http.Client, slug string) (string, error) {
 	req, err := http.NewRequest(http.MethodGet, "https://www.ufc.com/athlete/"+slug, nil)
 	if err != nil {
 		return "", err
@@ -198,9 +206,13 @@ func fetchOGImage(client *http.Client, slug string) (string, error) {
 		return "", err
 	}
 
+	if m := bioFullBodyRe.Find(body); m != nil {
+		return string(m), nil
+	}
+
 	m := ogImageRe.FindSubmatch(body)
 	if m == nil {
-		return "", fmt.Errorf("no og:image found on athlete page")
+		return "", fmt.Errorf("no usable image found on athlete page")
 	}
 
 	imgURL := string(m[1])
