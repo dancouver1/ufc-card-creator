@@ -12,6 +12,7 @@ import (
 	"github.com/dancouver1/ufc-card-creator/internal/config"
 	"github.com/dancouver1/ufc-card-creator/internal/db"
 	"github.com/dancouver1/ufc-card-creator/internal/domain/repository"
+	"github.com/dancouver1/ufc-card-creator/internal/rankings"
 	transporthttp "github.com/dancouver1/ufc-card-creator/internal/transport/http"
 	"github.com/dancouver1/ufc-card-creator/internal/transport/http/handlers"
 
@@ -35,6 +36,13 @@ func main() {
 	repo := repository.New(database.Pool)
 	h := handlers.NewHandler(repo)
 	r := transporthttp.NewRouter(h, database.Health)
+
+	// Keep the rankings page in sync with ufc.com/rankings by re-scraping on
+	// a schedule (ufc.com offers no update webhook, so periodic polling is
+	// the closest available option).
+	schedulerCtx, stopScheduler := context.WithCancel(context.Background())
+	defer stopScheduler()
+	rankings.StartScheduler(schedulerCtx, repo, cfg.RankingsScrapeInterval)
 
 	// Create server
 	server := &http.Server{
