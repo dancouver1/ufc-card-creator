@@ -8,6 +8,7 @@ type Repository struct {
 	Cards        *CardRepository
 	Matches      *MatchRepository
 	FightHistory *FightHistoryRepository
+	Rankings     *RankingRepository
 }
 
 // New builds a Repository backed by the given pool.
@@ -19,5 +20,6 @@ func New(pool *pgxpool.Pool) *Repository {
 		Cards:        &CardRepository{pool: pool, matches: matches},
 		Matches:      matches,
 		FightHistory: &FightHistoryRepository{pool: pool},
+		Rankings:     &RankingRepository{pool: pool},
 	}
 }

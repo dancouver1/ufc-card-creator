@@ -36,6 +36,7 @@ func NewRouter(h *handlers.Handler, healthCheck func(ctx context.Context) error)
 	r.Get("/matchmaker", h.HandleMatchmakerPage)
 	r.Get("/cards", h.HandleCardsPage)
 	r.Get("/card/{id}", h.HandleCardDetailPage)
+	r.Get("/rankings", h.HandleRankingsPage)
 
 	// API Routes
 	r.Route("/api", func(r chi.Router) {

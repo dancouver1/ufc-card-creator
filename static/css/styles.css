@@ -859,6 +859,147 @@ h3,
     letter-spacing: 2px;
 }
 
+/* Rankings */
+.rankings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.rankings-last-updated {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.rankings-switch {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: #111;
+    border: 1px solid #262626;
+    border-radius: 999px;
+    padding: 0.4rem 0.9rem;
+}
+
+.rankings-switch-label {
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 1px;
+    font-size: 0.85rem;
+    color: #666;
+    transition: color 0.2s ease;
+}
+
+.rankings-switch-label.active {
+    color: #ffffff;
+}
+
+.rankings-switch-toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    border-radius: 999px;
+    background: #d20a0a;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.rankings-switch-toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.2s ease;
+}
+
+.rankings-switch-toggle.is-meta::after {
+    transform: translateX(20px);
+}
+
+.rankings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+}
+
+.rankings-division {
+    background: #111;
+    border: 1px solid #262626;
+    border-radius: 8px;
+    padding: 1.25rem;
+}
+
+.rankings-division h3 {
+    color: #d20a0a;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+.rankings-champion {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #262626;
+}
+
+.rankings-champion img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 50%;
+    background: #1a1a1a;
+}
+
+.rankings-champion-name {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.05rem;
+    text-transform: uppercase;
+}
+
+.rankings-champion-label {
+    color: #666;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.rankings-list {
+    list-style: none;
+}
+
+.rankings-list li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    padding: 0.3rem 0;
+    font-size: 0.9rem;
+}
+
+.rankings-list .rank-position {
+    color: #666;
+    width: 1.5rem;
+    flex-shrink: 0;
+}
+
+.rankings-move-up {
+    color: #2ecc71;
+}
+
+.rankings-move-down {
+    color: #e74c3c;
+}
+
 /* Responsive */
 @media (max-width: 968px) {
     .matchup-container {
@@ -870,6 +1011,10 @@ h3,
     }
 
     .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rankings-grid {
         grid-template-columns: 1fr;
     }
 }
