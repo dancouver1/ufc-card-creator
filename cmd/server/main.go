@@ -3,109 +3,60 @@ package main
 import (
 	"context"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"os/exec"
 	"os/signal"
+	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/joho/godotenv"
-	"github.com/go-chi/httprate"
+	"github.com/dancouver1/ufc-card-creator/internal/config"
+	"github.com/dancouver1/ufc-card-creator/internal/db"
+	"github.com/dancouver1/ufc-card-creator/internal/domain/repository"
+	"github.com/dancouver1/ufc-card-creator/internal/rankings"
+	transporthttp "github.com/dancouver1/ufc-card-creator/internal/transport/http"
+	"github.com/dancouver1/ufc-card-creator/internal/transport/http/handlers"
 
-	"github.com/dancouver1/ufc-card-creator/internal/database"
-	"github.com/dancouver1/ufc-card-creator/internal/handlers"
+	_ "github.com/dancouver1/ufc-card-creator/docs"
 )
 
+// @title UFC Card Creator API
+// @version 1.0
+// @description Backend API for browsing UFC fighters and building matchmaker cards.
+// @BasePath /api
 func main() {
-	// Load .env file (only works locally, not in Docker)
-	_ = godotenv.Load()
-
-	// Get port from environment
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
+	cfg := config.Load()
 
 	// Initialize database connection
-	db, err := database.NewDB()
+	database, err := db.NewDB(cfg.DatabaseURL)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
-	defer db.Close()
+	defer database.Close()
 
-	// Initialize handlers
-	h := handlers.NewHandler(db)
+	repo := repository.New(database.Pool)
+	h := handlers.NewHandler(repo)
+	r := transporthttp.NewRouter(h, database.Health)
 
-	// Initialize router
-	r := chi.NewRouter()
+	// A previous run of this same server (e.g. left over from an earlier
+	// `go run` that wasn't shut down cleanly) is the common cause of "address
+	// already in use" here. Free the port automatically so a stale process
+	// doesn't require manual intervention before every restart.
+	freePort(cfg.Port)
 
-	// Middleware
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Timeout(60 * time.Second))
-
-	r.Use(httprate.LimitByIP(100, time.Minute))
-
-	// Security Headers Middleware
-	r.Use(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
-			w.Header().Set("X-Content-Type-Options", "nosniff")
-			w.Header().Set("X-Frame-Options", "DENY")
-			next.ServeHTTP(w, r)
-		})
-	})
-
-	// Page Routes
-	r.Get("/", h.HandleHome)
-	r.Get("/fighters", h.HandleFightersPage)
-	r.Get("/matchmaker", h.HandleMatchmakerPage)
-	r.Get("/cards", h.HandleCardsPage)
-	r.Get("/card/{id}", h.HandleCardDetailPage)
-
-	// API Routes
-	r.Route("/api", func(r chi.Router) {
-		// Fighters
-		r.Get("/fighters", h.HandleGetFighters)
-		r.Get("/fighter/{id}", h.HandleGetFighterByID)
-		r.Get("/fighters/search", h.HandleSearchFighters)
-
-		// Matches
-		r.Post("/matches", h.HandleCreateMatch)
-		r.Put("/matches/prediction", h.HandleUpdateMatchPrediction)
-		r.Delete("/matches/{id}", h.HandleDeleteMatch)
-
-		// Cards
-		r.Post("/cards", h.HandleCreateCard)
-		r.Get("/cards/{id}", h.HandleGetCardByID)
-		r.Delete("/cards/{id}", h.HandleDeleteCard)
-	})
-
-	// Health check endpoint
-	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-		ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
-		defer cancel()
-
-		if err := db.Health(ctx); err != nil {
-			http.Error(w, "Database connection failed", http.StatusServiceUnavailable)
-			return
-		}
-
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
-	})
-
-	// Static files
-	fileServer := http.FileServer(http.Dir("./static"))
-	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
+	// Keep the rankings page in sync with ufc.com/rankings by re-scraping on
+	// a schedule (ufc.com offers no update webhook, so periodic polling is
+	// the closest available option).
+	schedulerCtx, stopScheduler := context.WithCancel(context.Background())
+	defer stopScheduler()
+	rankings.StartScheduler(schedulerCtx, repo, cfg.RankingsScrapeInterval)
 
 	// Create server
 	server := &http.Server{
-		Addr:         ":" + port,
+		Addr:         ":" + cfg.Port,
 		Handler:      r,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
@@ -114,7 +65,7 @@ func main() {
 
 	// Start server in a goroutine
 	go func() {
-		log.Printf("Server starting on port %s...", port)
+		log.Printf("Server starting on port %s...", cfg.Port)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Server failed to start: %v", err)
 		}
@@ -135,4 +86,56 @@ func main() {
 	}
 
 	log.Println("Server exited")
+}
+
+// freePort kills whatever process is already listening on port, if any.
+// It only targets processes named "main" or "server" (the binary names this
+// project runs as under `go run`/`go build`) so it never touches an
+// unrelated process that happens to be using the port.
+func freePort(port string) {
+	ln, err := net.Listen("tcp", ":"+port)
+	if err == nil {
+		ln.Close()
+		return
+	}
+
+	out, err := exec.Command("lsof", "-ti", "tcp:"+port).Output()
+	if err != nil {
+		return
+	}
+
+	for _, pidStr := range strings.Fields(string(out)) {
+		pid, err := strconv.Atoi(pidStr)
+		if err != nil {
+			continue
+		}
+
+		nameOut, err := exec.Command("ps", "-p", pidStr, "-o", "comm=").Output()
+		if err != nil {
+			continue
+		}
+		name := strings.TrimSpace(string(nameOut))
+		base := name
+		if idx := strings.LastIndex(name, "/"); idx != -1 {
+			base = name[idx+1:]
+		}
+		if base != "main" && base != "server" {
+			log.Printf("Port %s is in use by PID %d (%s); not killing unrelated process", port, pid, name)
+			continue
+		}
+
+		log.Printf("Port %s is in use by a previous server instance (PID %d); stopping it", port, pid)
+		if err := syscall.Kill(pid, syscall.SIGTERM); err != nil {
+			continue
+		}
+
+		for i := 0; i < 20; i++ {
+			if ln, err := net.Listen("tcp", ":"+port); err == nil {
+				ln.Close()
+				return
+			}
+			time.Sleep(100 * time.Millisecond)
+		}
+		syscall.Kill(pid, syscall.SIGKILL)
+	}
 }

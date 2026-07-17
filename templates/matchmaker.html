@@ -27,6 +27,7 @@
                 <li><a href="/fighters">Fighters</a></li>
                 <li><a href="/matchmaker">Create Match</a></li>
                 <li><a href="/cards">My Cards</a></li>
+                <li><a href="/rankings">Rankings</a></li>
             </ul>
         </div>
     </nav>
@@ -269,7 +270,7 @@
                             </select>
                         </div>
                         <div class="modal-fighters-list">
-                            <template x-for="fighter in modalFighters" :key="fighter.id">
+                            <template x-for="fighter in modalFightersFiltered()" :key="fighter.id">
                                 <div @click="selectFighter(fighter)" class="modal-fighter-item">
                                     <span x-text="fighter.name"></span>
                                     <span class="fighter-record" x-text="fighter.wins + '-' + fighter.losses"></span>
@@ -326,12 +327,20 @@
                         openFighterModal(fighterNumber) {
                             this.selectingFor = fighterNumber;
                             this.showModal = true;
+                            this.modalSearch = '';
+                            this.modalWeightClass = 'all';
                             this.searchFighters();
                         },
 
                         async searchFighters() {
                             const response = await fetch(`/api/fighters?search=${this.modalSearch}&weight_class=${this.modalWeightClass}`);
-                            this.modalFighters = await response.json();
+                            this.modalFighters = (await response.json()) || [];
+                        },
+
+                        modalFightersFiltered() {
+                            const otherFighter = this.selectingFor === 1 ? this.fighter2 : this.fighter1;
+                            if (!otherFighter) return this.modalFighters;
+                            return this.modalFighters.filter(fighter => fighter.id !== otherFighter.id);
                         },
 
                         async selectFighter(fighter) {
