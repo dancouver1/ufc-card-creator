@@ -3,9 +3,13 @@ package main
 import (
 	"context"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"os/exec"
 	"os/signal"
+	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -36,6 +40,12 @@ func main() {
 	repo := repository.New(database.Pool)
 	h := handlers.NewHandler(repo)
 	r := transporthttp.NewRouter(h, database.Health)
+
+	// A previous run of this same server (e.g. left over from an earlier
+	// `go run` that wasn't shut down cleanly) is the common cause of "address
+	// already in use" here. Free the port automatically so a stale process
+	// doesn't require manual intervention before every restart.
+	freePort(cfg.Port)
 
 	// Keep the rankings page in sync with ufc.com/rankings by re-scraping on
 	// a schedule (ufc.com offers no update webhook, so periodic polling is
@@ -76,4 +86,56 @@ func main() {
 	}
 
 	log.Println("Server exited")
+}
+
+// freePort kills whatever process is already listening on port, if any.
+// It only targets processes named "main" or "server" (the binary names this
+// project runs as under `go run`/`go build`) so it never touches an
+// unrelated process that happens to be using the port.
+func freePort(port string) {
+	ln, err := net.Listen("tcp", ":"+port)
+	if err == nil {
+		ln.Close()
+		return
+	}
+
+	out, err := exec.Command("lsof", "-ti", "tcp:"+port).Output()
+	if err != nil {
+		return
+	}
+
+	for _, pidStr := range strings.Fields(string(out)) {
+		pid, err := strconv.Atoi(pidStr)
+		if err != nil {
+			continue
+		}
+
+		nameOut, err := exec.Command("ps", "-p", pidStr, "-o", "comm=").Output()
+		if err != nil {
+			continue
+		}
+		name := strings.TrimSpace(string(nameOut))
+		base := name
+		if idx := strings.LastIndex(name, "/"); idx != -1 {
+			base = name[idx+1:]
+		}
+		if base != "main" && base != "server" {
+			log.Printf("Port %s is in use by PID %d (%s); not killing unrelated process", port, pid, name)
+			continue
+		}
+
+		log.Printf("Port %s is in use by a previous server instance (PID %d); stopping it", port, pid)
+		if err := syscall.Kill(pid, syscall.SIGTERM); err != nil {
+			continue
+		}
+
+		for i := 0; i < 20; i++ {
+			if ln, err := net.Listen("tcp", ":"+port); err == nil {
+				ln.Close()
+				return
+			}
+			time.Sleep(100 * time.Millisecond)
+		}
+		syscall.Kill(pid, syscall.SIGKILL)
+	}
 }
