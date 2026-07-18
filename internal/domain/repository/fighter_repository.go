@@ -219,11 +219,17 @@ func (r *FighterRepository) UpsertFighter(ctx context.Context, fighter *models.F
             height_inches = COALESCE(EXCLUDED.height_inches, fighters.height_inches),
             weight_lbs = COALESCE(EXCLUDED.weight_lbs, fighters.weight_lbs),
             reach_cm = COALESCE(EXCLUDED.reach_cm, fighters.reach_cm),
+            leg_reach_cm = COALESCE(EXCLUDED.leg_reach_cm, fighters.leg_reach_cm),
             weight_class = EXCLUDED.weight_class,
-            stance = EXCLUDED.stance,
+            stance = COALESCE(EXCLUDED.stance, fighters.stance),
             wins = EXCLUDED.wins,
             losses = EXCLUDED.losses,
             draws = EXCLUDED.draws,
+            date_of_birth = COALESCE(EXCLUDED.date_of_birth, fighters.date_of_birth),
+            nationality = COALESCE(EXCLUDED.nationality, fighters.nationality),
+            fighter_image_url = COALESCE(EXCLUDED.fighter_image_url, fighters.fighter_image_url),
+            is_active = EXCLUDED.is_active,
+            last_fight_date = COALESCE(EXCLUDED.last_fight_date, fighters.last_fight_date),
             updated_at = CURRENT_TIMESTAMP
         RETURNING id, created_at, updated_at
     `
